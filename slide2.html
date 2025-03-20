@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why Surface Tension Happens</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #FFEB3B;
+            font-size: 36px;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        p {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .highlight {
+            background-color: rgba(255, 235, 59, 0.2);
+            padding: 3px 6px;
+            border-radius: 4px;
+        }
+        .visual {
+            width: 100%;
+            height: 400px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            margin: 30px 0;
+            overflow: hidden;
+            position: relative;
+        }
+        .beaker {
+            position: absolute;
+            width: 300px;
+            height: 250px;
+            border: 4px solid rgba(255, 255, 255, 0.8);
+            border-top: none;
+            border-radius: 0 0 20px 20px;
+            left: 50%;
+            top: 100px;
+            transform: translateX(-50%);
+        }
+        .water {
+            position: absolute;
+            width: 100%;
+            height: 80%;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(79, 195, 247, 0.8), rgba(3, 169, 244, 0.8));
+            border-radius: 0 0 16px 16px;
+        }
+        .water-surface {
+            position: absolute;
+            width: 100%;
+            height: 30px;
+            top: -15px;
+            background: linear-gradient(to bottom, rgba(3, 169, 244, 0), rgba(3, 169, 244, 0.9));
+            border-radius: 50% 50% 0 0 / 20px;
+        }
+        .molecule {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #81D4FA;
+            box-shadow: 0 0 8px #29B6F6;
+        }
+        .force-arrow {
+            position: absolute;
+            width: 50px;
+            height: 15px;
+            background-color: transparent;
+        }
+        .inward-arrow {
+            position: absolute;
+            width: 40px;
+            height: 15px;
+        }
+        .inward-arrow::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            border-left: 12px solid #FF5252;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+        }
+        .inward-arrow::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 28px;
+            height: 3px;
+            background-color: #FF5252;
+            transform: translateY(-50%);
+        }
+        .tangential-arrow {
+            position: absolute;
+            width: 40px;
+            height: 15px;
+        }
+        .tangential-arrow::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            border-left: 12px solid #FFEB3B;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+        }
+        .tangential-arrow::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 28px;
+            height: 3px;
+            background-color: #FFEB3B;
+            transform: translateY(-50%);
+        }
+        .force-label {
+            position: absolute;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+        }
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 900px;
+            margin-top: 20px;
+            padding: 0 30px;
+            box-sizing: border-box;
+        }
+        .nav-button {
+            padding: 12px 24px;
+            background-color: #FFEB3B;
+            color: #1a237e;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .nav-button:hover {
+            background-color: #FDD835;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Why Surface Tension Happens</h1>
+        
+        <div class="visual" id="forcesVisual">
+            <div class="beaker">
+                <div class="water">
+                    <div class="water-surface"></div>
+                </div>
+            </div>
+            <!-- Molecules and arrows will be added by JavaScript -->
+        </div>
+        
+        <p>At liquid–air interfaces, surface tension results from the <span class="highlight">greater attraction of liquid molecules to each other</span> than to the molecules in the air.</p>
+        
+        <p>There are two primary mechanisms in play:</p>
+        
+        <p>1. An <span class="highlight">inward force</span> on the surface molecules causing the liquid to contract.</p>
+        
+        <p>2. A <span class="highlight">tangential force</span> parallel to the surface of the liquid. This tangential force is generally referred to as the surface tension.</p>
+    </div>
+    
+    <div class="navigation">
+        <a href="hut.html" class="nav-button">Back to Lab</a>
+        <a href="slide3.html" class="nav-button">Next: Why It's Important</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const visual = document.getElementById('forcesVisual');
+            const beaker = document.querySelector('.beaker');
+            const water = document.querySelector('.water');
+            
+            // Get beaker dimensions and position
+            const beakerRect = beaker.getBoundingClientRect();
+            const waterRect = water.getBoundingClientRect();
+            const beakerLeft = beakerRect.left - visual.getBoundingClientRect().left;
+            const beakerTop = beakerRect.top - visual.getBoundingClientRect().top;
+            const beakerWidth = beakerRect.width;
+            const beakerHeight = beakerRect.height;
+            
+            const surfaceY = beakerTop + water.offsetTop;
+            
+            // Create molecules inside the beaker
+            // Surface molecules
+            for (let i = 0; i < 12; i++) {
+                createMolecule(
+                    beakerLeft + 20 + i * 22,
+                    surfaceY,
+                    'surface'
+                );
+            }
+            
+            // Regular molecules (below surface)
+            for (let i = 0; i < 80; i++) {
+                createMolecule(
+                    beakerLeft + 20 + Math.random() * (beakerWidth - 40),
+                    surfaceY + 30 + Math.random() * (beakerHeight - 50),
+                    'regular'
+                );
+            }
+            
+            // Create inward force arrows (red)
+            createInwardForces(beakerLeft, beakerWidth, surfaceY);
+            
+            // Create tangential force arrows (yellow)
+            createTangentialForces(beakerLeft, beakerWidth, surfaceY);
+            
+            // Add force labels
+            const inwardLabel = document.createElement('div');
+            inwardLabel.className = 'force-label';
+            inwardLabel.textContent = 'Inward Force';
+            inwardLabel.style.left = (beakerLeft + beakerWidth + 10) + 'px';
+            inwardLabel.style.top = (surfaceY - 30) + 'px';
+            inwardLabel.style.color = '#FF5252';
+            visual.appendChild(inwardLabel);
+            
+            const tangentialLabel = document.createElement('div');
+            tangentialLabel.className = 'force-label';
+            tangentialLabel.textContent = 'Tangential Force';
+            tangentialLabel.style.left = (beakerLeft + beakerWidth / 2 - 60) + 'px';
+            tangentialLabel.style.top = (surfaceY - 50) + 'px';
+            tangentialLabel.style.color = '#FFEB3B';
+            visual.appendChild(tangentialLabel);
+            
+            // Animate molecules
+            animateMolecules(surfaceY);
+        });
+        
+        function createMolecule(x, y, type) {
+            const visual = document.getElementById('forcesVisual');
+            const molecule = document.createElement('div');
+            molecule.className = 'molecule';
+            molecule.dataset.type = type;
+            molecule.dataset.originalX = x;
+            molecule.dataset.originalY = y;
+            
+            molecule.style.left = x + 'px';
+            molecule.style.top = y + 'px';
+            
+            if (type === 'surface') {
+                molecule.style.backgroundColor = '#29B6F6';
+                molecule.style.boxShadow = '0 0 12px #03A9F4';
+            }
+            
+            visual.appendChild(molecule);
+            return molecule;
+        }
+        
+        function createInwardForces(beakerLeft, beakerWidth, surfaceY) {
+            const visual = document.getElementById('forcesVisual');
+            
+            // Create arrows pointing inward from top
+            const topMiddleArrow = document.createElement('div');
+            topMiddleArrow.className = 'inward-arrow';
+            topMiddleArrow.style.left = (beakerLeft + beakerWidth / 2) + 'px';
+            topMiddleArrow.style.top = (surfaceY - 30) + 'px';
+            topMiddleArrow.style.transform = 'rotate(90deg)';
+            visual.appendChild(topMiddleArrow);
+            
+            // Left side inward arrows
+            const leftArrow = document.createElement('div');
+            leftArrow.className = 'inward-arrow';
+            leftArrow.style.left = (beakerLeft + 50) + 'px';
+            leftArrow.style.top = (surfaceY) + 'px';
+            leftArrow.style.transform = 'rotate(0deg)';
+            visual.appendChild(leftArrow);
+            
+            // Right side inward arrows
+            const rightArrow = document.createElement('div');
+            rightArrow.className = 'inward-arrow';
+            rightArrow.style.left = (beakerLeft + beakerWidth - 90) + 'px';
+            rightArrow.style.top = (surfaceY) + 'px';
+            rightArrow.style.transform = 'rotate(180deg)';
+            visual.appendChild(rightArrow);
+        }
+        
+        function createTangentialForces(beakerLeft, beakerWidth, surfaceY) {
+            const visual = document.getElementById('forcesVisual');
+            
+            // Left tangential force (pulling right)
+            const leftTangential = document.createElement('div');
+            leftTangential.className = 'tangential-arrow';
+            leftTangential.style.left = (beakerLeft + 70) + 'px';
+            leftTangential.style.top = (surfaceY - 15) + 'px';
+            leftTangential.style.transform = 'rotate(0deg)';
+            visual.appendChild(leftTangential);
+            
+            // Middle tangential forces
+            const middleLeftTangential = document.createElement('div');
+            middleLeftTangential.className = 'tangential-arrow';
+            middleLeftTangential.style.left = (beakerLeft + beakerWidth/2 - 70) + 'px';
+            middleLeftTangential.style.top = (surfaceY - 15) + 'px';
+            middleLeftTangential.style.transform = 'rotate(0deg)';
+            visual.appendChild(middleLeftTangential);
+            
+            const middleRightTangential = document.createElement('div');
+            middleRightTangential.className = 'tangential-arrow';
+            middleRightTangential.style.left = (beakerLeft + beakerWidth/2 + 30) + 'px';
+            middleRightTangential.style.top = (surfaceY - 15) + 'px';
+            middleRightTangential.style.transform = 'rotate(180deg)';
+            visual.appendChild(middleRightTangential);
+            
+            // Right tangential force (pulling left)
+            const rightTangential = document.createElement('div');
+            rightTangential.className = 'tangential-arrow';
+            rightTangential.style.left = (beakerLeft + beakerWidth - 70) + 'px';
+            rightTangential.style.top = (surfaceY - 15) + 'px';
+            rightTangential.style.transform = 'rotate(180deg)';
+            visual.appendChild(rightTangential);
+        }
+        
+        function animateMolecules(surfaceY) {
+            const molecules = document.querySelectorAll('.molecule');
+            
+            molecules.forEach(molecule => {
+                const originalX = parseFloat(molecule.dataset.originalX);
+                const originalY = parseFloat(molecule.dataset.originalY);
+                
+                // Different animation based on molecule type
+                if (molecule.dataset.type === 'surface') {
+                    // Surface molecules vibrate less and mainly horizontally
+                    setInterval(() => {
+                        const newX = originalX + (Math.random() * 6 - 3);
+                        // Very slight vertical movement
+                        const newY = originalY + (Math.random() * 2 - 1);
+                        
+                        molecule.style.left = newX + 'px';
+                        molecule.style.top = newY + 'px';
+                    }, 800 + Math.random() * 500);
+                } else {
+                    // Regular molecules move more freely
+                    setInterval(() => {
+                        // More movement for molecules further from surface
+                        const distanceFromSurface = originalY - surfaceY;
+                        const moveFactor = Math.min(1, distanceFromSurface / 100);
+                        
+                        const newX = originalX + (Math.random() * 16 - 8) * moveFactor;
+                        const newY = originalY + (Math.random() * 16 - 8) * moveFactor;
+                        
+                        molecule.style.left = newX + 'px';
+                        molecule.style.top = newY + 'px';
+                    }, 500 + Math.random() * 800);
+                }
+            });
+            
+            // Animate the inward arrows (pulsing)
+            const inwardArrows = document.querySelectorAll('.inward-arrow');
+            inwardArrows.forEach(arrow => {
+                setInterval(() => {
+                    arrow.style.opacity = 0.6 + Math.random() * 0.4;
+                    const scale = 0.9 + Math.random() * 0.2;
+                    arrow.style.transform = arrow.style.transform.replace(/scale\([^)]*\)/, '') + ` scale(${scale})`;
+                }, 800 + Math.random() * 400);
+            });
+            
+            // Animate the tangential arrows (sliding)
+            const tangentialArrows = document.querySelectorAll('.tangential-arrow');
+            tangentialArrows.forEach(arrow => {
+                const originalLeft = parseInt(arrow.style.left);
+                setInterval(() => {
+                    arrow.style.opacity = 0.6 + Math.random() * 0.4;
+                    const shift = (Math.random() * 10 - 5);
+                    arrow.style.left = (originalLeft + shift) + 'px';
+                }, 700 + Math.random() * 300);
+            });
+        }
+    </script>
+</body>
+</html>

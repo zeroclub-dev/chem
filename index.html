@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leprechaun's Lucky Redirect</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.6.1/gsap.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Irish Grover', 'Comic Sans MS', cursive;
+            background: #0a5e0a;
+            color: #ffd700;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            background: radial-gradient(circle, #0e8e0e 0%, #063806 100%);
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-size: 4.5rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        p {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .button {
+            padding: 1rem 2.5rem;
+            font-size: 1.5rem;
+            background: #ffd700;
+            border: 3px solid #fff;
+            border-radius: 50px;
+            color: #0a5e0a;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: button-pulse 2s infinite;
+            margin-top: 1rem;
+        }
+
+        .button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+            background: #ffee00;
+        }
+
+        .interaction-guide {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a5e0a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 1s ease;
+        }
+
+        .loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .clover-loader {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            animation: spin 2s linear infinite;
+        }
+
+        .clover-leaf {
+            width: 40px;
+            height: 40px;
+            background: #ffd700;
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        .clover-leaf:nth-child(1) {
+            top: 0;
+            left: 30px;
+        }
+
+        .clover-leaf:nth-child(2) {
+            top: 30px;
+            left: 0;
+        }
+
+        .clover-leaf:nth-child(3) {
+            top: 30px;
+            left: 60px;
+        }
+
+        .clover-leaf:nth-child(4) {
+            top: 60px;
+            left: 30px;
+        }
+
+        .message-popup {
+            position: absolute;
+            background: white;
+            color: #0a5e0a;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+            z-index: 1000; /* Ensure it's on top of everything */
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        @keyframes button-pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Removed coin styling */
+    </style>
+</head>
+<body>
+    <div class="loading">
+        <div class="clover-loader">
+            <div class="clover-leaf"></div>
+            <div class="clover-leaf"></div>
+            <div class="clover-leaf"></div>
+            <div class="clover-leaf"></div>
+        </div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <div class="content" id="main-content">
+        <h1>Top o' the Mornin' to Ya!</h1>
+        <p>You've found the leprechaun's pot of gold at the end of the rainbow! Click on the leprechaun to hear his secrets!</p>
+        <button class="button" id="presentation-button">Continue to Presentation</button>
+    </div>
+
+    <div class="interaction-guide">
+        Hold and drag mouse to look around • WASD to move • Click on characters and objects to interact
+    </div>
+
+    <script>
+        // Wait for everything to load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.querySelector('.loading').classList.add('hidden');
+            }, 2000);
+        });
+
+        // Redirect to the actual presentation
+        document.getElementById('presentation-button').addEventListener('click', () => {
+            window.location.href = "https://slides.google.com/your-presentation-link";
+        });
+
+        // Removed coin creation
+
+        // Three.js Scene Setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+        
+        // Camera position and target - start on the south side with leprechaun
+        camera.position.z = -15;
+        camera.position.y = 5;
+        camera.position.x = 0;
+        
+        // Create a target that the camera will look at - look at leprechaun initially
+        const cameraTarget = new THREE.Vector3(-3, 2, -15);
+        camera.lookAt(cameraTarget);
+        
+        // Mouse look variables
+        let isMouseLooking = false;
+        let previousMousePosition = { x: 0, y: 0 };
+        let mouseRotation = { x: 0, y: 0 };
+        
+        // Flag to track if user has taken manual control
+        let userHasMovedCamera = false;
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(5, 10, 5);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
+        
+        const spotLight = new THREE.SpotLight(0xffd700, 1);
+        spotLight.position.set(0, 10, 5);
+        spotLight.angle = Math.PI / 6;
+        spotLight.penumbra = 0.1;
+        spotLight.decay = 2;
+        spotLight.distance = 50;
+        spotLight.castShadow = true;
+        scene.add(spotLight);
+
+        // Ground (green field)
+        const groundGeometry = new THREE.PlaneGeometry(160, 160, 32, 32);
+        const groundMaterial = new THREE.MeshStandardMaterial({
+            color: 0x2d862d,
+            roughness: 0.8,
+            metalness: 0.2,
+        });
+        
+        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.y = -1;
+        ground.receiveShadow = true;
+        scene.add(ground);
+
+        // Add hills in the background
+        function createHill(x, z, size) {
+            const hillGeometry = new THREE.ConeGeometry(size, size * 0.8, 32);
+            const hillMaterial = new THREE.MeshStandardMaterial({
+                color: 0x1a661a,
+                roughness: 0.9,
+                metalness: 0.1
+            });
+            
+            const hill = new THREE.Mesh(hillGeometry, hillMaterial);
+            hill.position.set(x, -1 + (size * 0.4), z);
+            hill.castShadow = true;
+            hill.receiveShadow = true;
+            scene.add(hill);
+            
+            return hill;
+        }
+        
+        // Create mountain range to separate the areas with a clear valley for the path
+        const mountains = [];
+        
+        // Create a mountain range with a much wider gap and mountains moved further to the sides
+        // First row of mountains (back row) - very wide gap
+        for (let i = -40; i <= 40; i += 12) {
+            if (i > -20 && i < 20) continue; // Much wider gap in the middle for the path
+            
+            const mountainSize = Math.random() * 8 + 14;
+            const mountain = createHill(i, 15, mountainSize);
+            mountains.push(mountain);
+        }
+        
+        // Second row of mountains (middle row) - wider gap and lower mountains on edges
+        for (let i = -34; i <= 34; i += 14) {
+            if (i > -22 && i < 22) continue; // Very wide gap for the path
+            
+            // Lower mountains near the valley
+            let mountainSize;
+            if (i === -22 || i === 22) {
+                mountainSize = Math.random() * 4 + 8; // Lower mountains at the edges of the valley
+            } else {
+                mountainSize = Math.random() * 6 + 12;
+            }
+            
+            const mountain = createHill(i, 10, mountainSize);
+            mountains.push(mountain);
+        }
+        
+        // Third row of mountains (front row) - extremely wide gap
+        for (let i = -25; i <= 25; i += 10) {
+            if (i > -24 && i < 24) continue; // Extremely wide gap for the valley
+            
+            // Lower mountains near the valley
+            let mountainSize;
+            if (i === -24 || i === 24) {
+                mountainSize = Math.random() * 3 + 6; // Even lower mountains at the edge of the valley
+            } else {
+                mountainSize = Math.random() * 5 + 8;
+            }
+            
+            const mountain = createHill(i, 5, mountainSize);
+            mountains.push(mountain);
+        }
+        
+        // Add "valley walls" - smaller hills much further to the sides
+        for (let z = 0; z <= 20; z += 5) {
+            // Left valley wall - much further to the side
+            const leftSize = Math.random() * 2 + 4; // Small hills
+            const leftWall = createHill(-15, z, leftSize); // Moved from -8 to -15
+            mountains.push(leftWall);
+            
+            // Right valley wall - much further to the side
+            const rightSize = Math.random() * 2 + 4;
+            const rightWall = createHill(15, z, rightSize); // Moved from 8 to 15
+            mountains.push(rightWall);
+        }
+        
+        // Create hills on leprechaun side (south side) - keeping distance from leprechaun
+        createHill(-25, -30, 10);
+        createHill(-15, -35, 8);
+        createHill(20, -32, 12);
+        createHill(30, -28, 9);
+        createHill(-5, -40, 15);
+        
+        // Create hills on Ms. Smith's side (north side) - keeping distance from Ms. Smith
+        createHill(-25, 25, 10);
+        createHill(20, 25, 8);
+        createHill(-15, 45, 12);
+
+        // Create shamrocks
+        function createShamrock(x, z) {
+            const shamrockGroup = new THREE.Group();
+            
+            // Create stem
+            const stemGeometry = new THREE.CylinderGeometry(0.05, 0.05, 1, 8);
+            const stemMaterial = new THREE.MeshStandardMaterial({
+                color: 0x2d862d,
+                roughness: 0.7,
+                metalness: 0.1
+            });
+            
+            const stem = new THREE.Mesh(stemGeometry, stemMaterial);
+            stem.position.y = 0.5;
+            shamrockGroup.add(stem);
+            
+            // Create leaves
+            for (let i = 0; i < 3; i++) {
+                const leafGeometry = new THREE.CircleGeometry(0.4, 32);
+                const leafMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x00aa00,
+                    roughness: 0.6,
+                    metalness: 0.2,
+                    side: THREE.DoubleSide
+                });
+                
+                const leaf = new THREE.Mesh(leafGeometry, leafMaterial);
+                leaf.rotation.x = -Math.PI / 2;
+                leaf.position.y = 1;
+                leaf.position.x = Math.cos(i * Math.PI * 2 / 3) * 0.4;
+                leaf.position.z = Math.sin(i * Math.PI * 2 / 3) * 0.4;
+                shamrockGroup.add(leaf);
+            }
+            
+            shamrockGroup.position.set(x, 0, z);
+            shamrockGroup.rotation.y = Math.random() * Math.PI * 2;
+            scene.add(shamrockGroup);
+            
+            return shamrockGroup;
+        }
+        
+        // Create multiple shamrocks
+        const shamrocks = [];
+        for (let i = 0; i < 50; i++) {
+            const x = Math.random() * 60 - 30;
+            const z = Math.random() * 60 - 30;
+            if (Math.sqrt(x * x + z * z) > 5) { // Keep area near center clear
+                shamrocks.push(createShamrock(x, -0.5, z));
+            }
+        }
+
+        // Create a rainbow
+        function createRainbow() {
+            const rainbowGroup = new THREE.Group();
+            
+            const colors = [
+                0xff0000, // Red
+                0xff7f00, // Orange
+                0xffff00, // Yellow
+                0x00ff00, // Green
+                0x0000ff, // Blue
+                0x4b0082, // Indigo
+                0x9400d3  // Violet
+            ];
+            
+            // Create rainbow bands
+            for (let i = 0; i < colors.length; i++) {
+                const radius = 15 - i * 0.5;
+                const tubeRadius = 0.3;
+                
+                const torusGeometry = new THREE.TorusGeometry(radius, tubeRadius, 16, 100, Math.PI);
+                const torusMaterial = new THREE.MeshStandardMaterial({
+                    color: colors[i],
+                    roughness: 0.5,
+                    metalness: 0.3,
+                    emissive: colors[i],
+                    emissiveIntensity: 0.2
+                });
+                
+                const torus = new THREE.Mesh(torusGeometry, torusMaterial);
+                torus.rotation.x = Math.PI / 2;
+                torus.rotation.y = Math.PI;
+                
+                rainbowGroup.add(torus);
+            }
+            
+            // Position the rainbow in the southern area
+            rainbowGroup.position.set(0, 5, -25);
+            rainbowGroup.rotation.z = Math.PI / 10;
+            scene.add(rainbowGroup);
+            
+            return rainbowGroup;
+        }
+        
+        const rainbow = createRainbow();
+
+        // Create pot of gold at the end of the rainbow
+        function createPotOfGold() {
+            const potGroup = new THREE.Group();
+            
+            // Pot
+            const potGeometry = new THREE.CylinderGeometry(1.5, 1, 2, 32);
+            const potMaterial = new THREE.MeshStandardMaterial({
+                color: 0x222222,
+                roughness: 0.5,
+                metalness: 0.5
+            });
+            
+            const pot = new THREE.Mesh(potGeometry, potMaterial);
+            potGroup.add(pot);
+            
+            // Gold coins
+            for (let i = 0; i < 40; i++) {
+                const coinGeometry = new THREE.CylinderGeometry(0.3, 0.3, 0.1, 16);
+                const coinMaterial = new THREE.MeshStandardMaterial({
+                    color: 0xffd700,
+                    roughness: 0.2,
+                    metalness: 0.8,
+                    emissive: 0xffaa00,
+                    emissiveIntensity: 0.2
+                });
+                
+                const coin = new THREE.Mesh(coinGeometry, coinMaterial);
+                
+                // Position coins in a pile
+                const radius = Math.random() * 1;
+                const angle = Math.random() * Math.PI * 2;
+                const height = Math.random() * 1.5;
+                
+                coin.position.set(
+                    Math.cos(angle) * radius,
+                    0.5 + height,
+                    Math.sin(angle) * radius
+                );
+                
+                coin.rotation.x = Math.random() * Math.PI / 6;
+                coin.rotation.z = Math.random() * Math.PI / 6;
+                
+                potGroup.add(coin);
+            }
+            
+            // Position at the end of the rainbow in the southern area
+            potGroup.position.set(0, -0.5, -25);
+            scene.add(potGroup);
+            
+            return potGroup;
+        }
+        
+        const potOfGold = createPotOfGold();
+
+        // Create leprechaun position further south
+        function createLeprechaun() {
+            const leprechaunGroup = new THREE.Group();
+            
+            // Head
+            const headGeometry = new THREE.SphereGeometry(0.7, 32, 32);
+            const headMaterial = new THREE.MeshStandardMaterial({
+                color: 0xffccaa,
+                roughness: 0.7,
+                metalness: 0.1
+            });
+            
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 1.7;
+            leprechaunGroup.add(head);
+            
+            // Hat
+            const hatBaseGeometry = new THREE.CylinderGeometry(0.8, 0.8, 0.2, 32);
+            const hatTopGeometry = new THREE.CylinderGeometry(0.6, 0.8, 0.8, 32);
+            const hatMaterial = new THREE.MeshStandardMaterial({
+                color: 0x009900,
+                roughness: 0.5,
+                metalness: 0.2
+            });
+            
+            const hatBase = new THREE.Mesh(hatBaseGeometry, hatMaterial);
+            hatBase.position.y = 2.2;
+            leprechaunGroup.add(hatBase);
+            
+            const hatTop = new THREE.Mesh(hatTopGeometry, hatMaterial);
+            hatTop.position.y = 2.7;
+            leprechaunGroup.add(hatTop);
+            
+            // Hat band
+            const hatBandGeometry = new THREE.CylinderGeometry(0.81, 0.81, 0.15, 32);
+            const hatBandMaterial = new THREE.MeshStandardMaterial({
+                color: 0x000000,
+                roughness: 0.5,
+                metalness: 0.3
+            });
+            
+            const hatBand = new THREE.Mesh(hatBandGeometry, hatBandMaterial);
+            hatBand.position.y = 2.25;
+            leprechaunGroup.add(hatBand);
+            
+            // Hat buckle
+            const buckleGeometry = new THREE.BoxGeometry(0.3, 0.15, 0.1);
+            const buckleMaterial = new THREE.MeshStandardMaterial({
+                color: 0xffd700,
+                roughness: 0.3,
+                metalness: 0.8
+            });
+            
+            const buckle = new THREE.Mesh(buckleGeometry, buckleMaterial);
+            buckle.position.set(0, 2.25, 0.8);
+            leprechaunGroup.add(buckle);
+            
+            // Eyes
+            const eyeGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+            const eyeMaterial = new THREE.MeshStandardMaterial({
+                color: 0x3366ff,
+                roughness: 0.3,
+                metalness: 0.5
+            });
+            
+            const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            leftEye.position.set(-0.25, 1.8, 0.6);
+            leprechaunGroup.add(leftEye);
+            
+            const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            rightEye.position.set(0.25, 1.8, 0.6);
+            leprechaunGroup.add(rightEye);
+            
+            // Nose
+            const noseGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+            const noseMaterial = new THREE.MeshStandardMaterial({
+                color: 0xffccaa,
+                roughness: 0.8,
+                metalness: 0.1
+            });
+            
+            const nose = new THREE.Mesh(noseGeometry, noseMaterial);
+            nose.position.set(0, 1.7, 0.7);
+            nose.scale.set(0.8, 0.8, 1.2);
+            leprechaunGroup.add(nose);
+            
+            // Mouth
+            const mouthGeometry = new THREE.TorusGeometry(0.2, 0.03, 16, 32, Math.PI);
+            const mouthMaterial = new THREE.MeshStandardMaterial({
+                color: 0xff6666,
+                roughness: 0.7,
+                metalness: 0.1
+            });
+            
+            const mouth = new THREE.Mesh(mouthGeometry, mouthMaterial);
+            mouth.position.set(0, 1.5, 0.65);
+            mouth.rotation.x = Math.PI / 2;
+            leprechaunGroup.add(mouth);
+            
+            // Beard
+            const beardGeometry = new THREE.SphereGeometry(0.8, 32, 32, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2);
+            const beardMaterial = new THREE.MeshStandardMaterial({
+                color: 0xff6600,
+                roughness: 0.9,
+                metalness: 0.1
+            });
+            
+            const beard = new THREE.Mesh(beardGeometry, beardMaterial);
+            beard.position.set(0, 1.4, 0);
+            beard.scale.set(1, 0.6, 1);
+            leprechaunGroup.add(beard);
+            
+            // Body
+            const bodyGeometry = new THREE.CylinderGeometry(0.5, 0.7, 1.5, 32);
+            const bodyMaterial = new THREE.MeshStandardMaterial({
+                color: 0x009900,
+                roughness: 0.6,
+                metalness: 0.2
+            });
+            
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.7;
+            leprechaunGroup.add(body);
+            
+            // Belt
+            const beltGeometry = new THREE.CylinderGeometry(0.71, 0.71, 0.2, 32);
+            const beltMaterial = new THREE.MeshStandardMaterial({
+                color: 0x000000,
+                roughness: 0.5,
+                metalness: 0.3
+            });
+            
+            const belt = new THREE.Mesh(beltGeometry, beltMaterial);
+            belt.position.y = 0.7;
+            leprechaunGroup.add(belt);
+            
+            // Belt buckle
+            const beltBuckleGeometry = new THREE.BoxGeometry(0.3, 0.2, 0.1);
+            const beltBuckle = new THREE.Mesh(beltBuckleGeometry, buckleMaterial);
+            beltBuckle.position.set(0, 0.7, 0.7);
+            leprechaunGroup.add(beltBuckle);
+            
+            // Arms
+            const armGeometry = new THREE.CylinderGeometry(0.15, 0.15, 1, 16);
+            
+            const leftArm = new THREE.Mesh(armGeometry, bodyMaterial);
+            leftArm.position.set(-0.7, 1, 0);
+            leftArm.rotation.z = Math.PI / 4;
+            leprechaunGroup.add(leftArm);
+            
+            const rightArm = new THREE.Mesh(armGeometry, bodyMaterial);
+            rightArm.position.set(0.7, 1, 0);
+            rightArm.rotation.z = -Math.PI / 4;
+            leprechaunGroup.add(rightArm);
+            
+            // Hands
+            const handGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+            const handMaterial = new THREE.MeshStandardMaterial({
+                color: 0xffccaa,
+                roughness: 0.7,
+                metalness: 0.1
+            });
+            
+            const leftHand = new THREE.Mesh(handGeometry, handMaterial);
+            leftHand.position.set(-1.1, 0.6, 0);
+            leftHand.scale.set(0.8, 0.8, 0.8);
+            leprechaunGroup.add(leftHand);
+            
+            const rightHand = new THREE.Mesh(handGeometry, handMaterial);
+            rightHand.position.set(1.1, 0.6, 0);
+            rightHand.scale.set(0.8, 0.8, 0.8);
+            leprechaunGroup.add(rightHand);
+            
+            // Legs
+            const legGeometry = new THREE.CylinderGeometry(0.2, 0.2, 0.8, 16);
+            
+            const leftLeg = new THREE.Mesh(legGeometry, bodyMaterial);
+            leftLeg.position.set(-0.3, -0.2, 0);
+            leprechaunGroup.add(leftLeg);
+            
+            const rightLeg = new THREE.Mesh(legGeometry, bodyMaterial);
+            rightLeg.position.set(0.3, -0.2, 0);
+            leprechaunGroup.add(rightLeg);
+            
+            // Feet
+            const footGeometry = new THREE.SphereGeometry(0.25, 16, 16);
+            const footMaterial = new THREE.MeshStandardMaterial({
+                color: 0x000000,
+                roughness: 0.5,
+                metalness: 0.3
+            });
+            
+            const leftFoot = new THREE.Mesh(footGeometry, footMaterial);
+            leftFoot.position.set(-0.3, -0.7, 0.1);
+            leftFoot.scale.set(1, 0.5, 1.5);
+            leprechaunGroup.add(leftFoot);
+            
+            const rightFoot = new THREE.Mesh(footGeometry, footMaterial);
+            rightFoot.position.set(0.3, -0.7, 0.1);
+            rightFoot.scale.set(1, 0.5, 1.5);
+            leprechaunGroup.add(rightFoot);
+            
+            // Shoe buckles
+            const shoeGeometry = new THREE.BoxGeometry(0.15, 0.08, 0.05);
+            
+            const leftShoeB = new THREE.Mesh(shoeGeometry, buckleMaterial);
+            leftShoeB.position.set(-0.3, -0.65, 0.3);
+            leprechaunGroup.add(leftShoeB);
+            
+            const rightShoeB = new THREE.Mesh(shoeGeometry, buckleMaterial);
+            rightShoeB.position.set(0.3, -0.65, 0.3);
+            leprechaunGroup.add(rightShoeB);
+            
+            // Position leprechaun in the scene (south side)
+            leprechaunGroup.position.set(-3, 0, -15);
+            leprechaunGroup.rotation.y = Math.PI / 4;
+            scene.add(leprechaunGroup);
+            
+            return leprechaunGroup;
+        }
+        
+        const leprechaun = createLeprechaun();
+
+        // Make leprechaun interactive
+        let isDragging = false;
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        
+        // Create a message popup for interactions
+        const messagePopup = document.createElement('div');
+        messagePopup.className = 'message-popup';
+        document.body.appendChild(messagePopup);
+        
+        function onMouseMove(event) {
+            // Update normalized mouse coordinates for raycasting
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            // Mouse look functionality
+            if (isMouseLooking) {
+                const deltaX = event.clientX - previousMousePosition.x;
+                const deltaY = event.clientY - previousMousePosition.y;
+                
+                // Update rotation values (scaled down for smoother movement)
+                mouseRotation.y -= deltaX * 0.003;
+                mouseRotation.x -= deltaY * 0.003;
+                
+                // Limit vertical rotation to prevent camera flipping
+                mouseRotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, mouseRotation.x));
+                
+                // Calculate new camera direction
+                const direction = new THREE.Vector3();
+                direction.x = Math.sin(mouseRotation.y) * Math.cos(mouseRotation.x);
+                direction.y = Math.sin(mouseRotation.x);
+                direction.z = Math.cos(mouseRotation.y) * Math.cos(mouseRotation.x);
+                
+                // Update camera target
+                cameraTarget.copy(camera.position).add(direction);
+                
+                // Make camera look at the target
+                camera.lookAt(cameraTarget);
+                
+                // Flag that user has moved the camera
+                userHasMovedCamera = true;
+            }
+            
+            previousMousePosition.x = event.clientX;
+            previousMousePosition.y = event.clientY;
+        }
+        
+        function onMouseDown(event) {
+            isDragging = true;
+            isMouseLooking = true;
+            
+            // Hide the main content on any click
+            document.getElementById('main-content').style.display = 'none';
+            
+            // Check for interactive objects
+            raycaster.setFromCamera(mouse, camera);
+            
+            // Check for leprechaun interaction
+            const leprechaunIntersects = raycaster.intersectObject(leprechaun, true);
+            if (leprechaunIntersects.length > 0) {
+                // Animate leprechaun jump
+                gsap.to(leprechaun.position, {
+                    y: 1,
+                    duration: 0.3,
+                    ease: "power1.out",
+                    yoyo: true,
+                    repeat: 1
+                });
+                
+                // Show leprechaun message
+                const messages = [
+                    "You need to see Professor Smith! She's on the other side of the mountains, just follow the path north!",
+                    "Professor Smith knows all about water surface tension. Find her beyond the mountains!",
+                    "Cross the mountains to the north! Professor Smith is waiting in her hut!",
+                    "Top o' the mornin'! Head north over the mountains to find Professor Smith's hut!"
+                ];
+                
+                const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+                
+                messagePopup.textContent = randomMessage;
+                messagePopup.style.left = `${event.clientX}px`;
+                messagePopup.style.top = `${event.clientY - 80}px`;
+                messagePopup.style.opacity = "1";
+                messagePopup.style.transform = "translateY(0)";
+                
+                // Hide message after a while
+                setTimeout(() => {
+                    messagePopup.style.opacity = "0";
+                    messagePopup.style.transform = "translateY(-20px)";
+                }, 4000);
+            }
+            
+            // Check for Ms. Smith interaction
+            const msSmithIntersects = raycaster.intersectObject(msSmith, true);
+            if (msSmithIntersects.length > 0) {
+                // Show Ms. Smith message
+                messagePopup.textContent = "Welcome! I'm Professor Smith. Please enter my hut to learn about water surface tension.";
+                messagePopup.style.left = `${event.clientX}px`;
+                messagePopup.style.top = `${event.clientY - 80}px`;
+                messagePopup.style.opacity = "1";
+                messagePopup.style.transform = "translateY(0)";
+                
+                // Hide message after a while
+                setTimeout(() => {
+                    messagePopup.style.opacity = "0";
+                    messagePopup.style.transform = "translateY(-20px)";
+                }, 4000);
+            }
+            
+            // Check for door interaction
+            const doorIntersects = raycaster.intersectObject(door, true);
+            if (doorIntersects.length > 0) {
+                // Show door message
+                messagePopup.textContent = "Entering Professor Smith's hut...";
+                messagePopup.style.left = `${event.clientX}px`;
+                messagePopup.style.top = `${event.clientY - 80}px`;
+                messagePopup.style.opacity = "1";
+                messagePopup.style.transform = "translateY(0)";
+                
+                // Redirect after a short delay
+                setTimeout(() => {
+                    window.location.href = "hut.html";
+                }, 1000);
+            }
+        }
+        
+        function onMouseUp() {
+            isDragging = false;
+            isMouseLooking = false;
+        }
+        
+        window.addEventListener('mousemove', onMouseMove, false);
+        window.addEventListener('mousedown', onMouseDown, false);
+        window.addEventListener('mouseup', onMouseUp, false);
+        
+        // WASD Movement Controls
+        const keys = {
+            w: false,
+            a: false,
+            s: false,
+            d: false
+        };
+        
+        window.addEventListener('keydown', (event) => {
+            const key = event.key.toLowerCase();
+            if (keys.hasOwnProperty(key)) {
+                keys[key] = true;
+            }
+        });
+        
+        window.addEventListener('keyup', (event) => {
+            const key = event.key.toLowerCase();
+            if (keys.hasOwnProperty(key)) {
+                keys[key] = false;
+            }
+        });
+
+        // Create floating particles (shamrock confetti)
+        const particles = [];
+        function createParticle() {
+            const size = Math.random() * 0.3 + 0.1;
+            
+            // Create a small shamrock
+            const particleGroup = new THREE.Group();
+            
+            // Create stem
+            const stemGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.3, 8);
+            const stemMaterial = new THREE.MeshStandardMaterial({
+                color: 0x2d862d,
+                emissive: 0x2d862d,
+                emissiveIntensity: 0.2
+            });
+            
+            const stem = new THREE.Mesh(stemGeometry, stemMaterial);
+            stem.position.y = 0.15;
+            particleGroup.add(stem);
+            
+            // Create leaves
+            for (let i = 0; i < 3; i++) {
+                const leafGeometry = new THREE.CircleGeometry(0.1, 32);
+                const leafMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x00aa00,
+                    emissive: 0x00aa00,
+                    emissiveIntensity: 0.3,
+                    side: THREE.DoubleSide
+                });
+                
+                const leaf = new THREE.Mesh(leafGeometry, leafMaterial);
+                leaf.rotation.x = -Math.PI / 2;
+                leaf.position.y = 0.3;
+                leaf.position.x = Math.cos(i * Math.PI * 2 / 3) * 0.1;
+                leaf.position.z = Math.sin(i * Math.PI * 2 / 3) * 0.1;
+                particleGroup.add(leaf);
+            }
+            
+            // Position randomly
+            particleGroup.position.set(
+                Math.random() * 30 - 15,
+                Math.random() * 10 + 5,
+                Math.random() * 20 - 10
+            );
+            
+            // Scale based on size
+            particleGroup.scale.set(size, size, size);
+            
+            // Store properties for animation
+            particleGroup.userData = {
+                velocity: {
+                    x: (Math.random() - 0.5) * 0.05,
+                    y: -Math.random() * 0.03 - 0.02,
+                    z: (Math.random() - 0.5) * 0.05
+                },
+                rotation: {
+                    x: (Math.random() - 0.5) * 0.02,
+                    y: (Math.random() - 0.5) * 0.02,
+                    z: (Math.random() - 0.5) * 0.02
+                }
+            };
+            
+            scene.add(particleGroup);
+            particles.push(particleGroup);
+        }
+        
+        // Create initial particles
+        for (let i = 0; i < 50; i++) {
+            createParticle();
+        }
+
+        // Create stone path
+        function createStonePath() {
+            const pathGroup = new THREE.Group();
+            
+            // Create a path from south (leprechaun) to north (Ms. Smith)
+            const pathLength = 70; // Extended length of the path
+            const pathWidth = 5;   // Slightly wider path
+            const stoneSize = 1;   // Size of individual stones
+            
+            // Create the base path - raised slightly through the mountain valley
+            const baseGeometry = new THREE.PlaneGeometry(pathWidth, pathLength);
+            const baseMaterial = new THREE.MeshStandardMaterial({
+                color: 0x8B4513, // Dirt color
+                roughness: 0.9,
+                metalness: 0.0,
+                side: THREE.DoubleSide
+            });
+            
+            const basePath = new THREE.Mesh(baseGeometry, baseMaterial);
+            basePath.rotation.x = -Math.PI / 2;
+            basePath.position.set(0, -0.95, 5); // Centered at z=0, slightly below ground level
+            pathGroup.add(basePath);
+            
+            // Add stones along the path
+            const stoneColors = [0x808080, 0x696969, 0x778899, 0xA9A9A9]; // Various gray colors
+            
+            for (let z = -25; z <= 35; z += stoneSize) {
+                // More visible path through the mountain pass
+                let heightAdjustment = 0;
+                
+                // Elevate the path slightly in the mountain pass for better visibility
+                if (z >= 0 && z <= 20) {
+                    heightAdjustment = 0.2; // Raised path in valley
+                    // Place more stones in mountain area
+                    if (Math.random() > 0.3) {
+                        // Continue to next iteration (place more stones)
+                    }
+                }
+                
+                // Determine how many stones to place across the width
+                const stonesAcross = Math.floor(Math.random() * 3) + 2; // 2-4 stones across (more stones)
+                
+                for (let i = 0; i < stonesAcross; i++) {
+                    const stoneGeometry = new THREE.BoxGeometry(
+                        stoneSize * (0.5 + Math.random() * 0.5), // width
+                        stoneSize * 0.2,                         // height
+                        stoneSize * (0.5 + Math.random() * 0.5)  // depth
+                    );
+                    
+                    const color = stoneColors[Math.floor(Math.random() * stoneColors.length)];
+                    const stoneMaterial = new THREE.MeshStandardMaterial({
+                        color: color,
+                        roughness: 0.8,
+                        metalness: 0.2
+                    });
+                    
+                    const stone = new THREE.Mesh(stoneGeometry, stoneMaterial);
+                    
+                    // Position the stone with some randomness, adjusted for valley height
+                    const xOffset = (Math.random() - 0.5) * (pathWidth - stoneSize);
+                    stone.position.set(
+                        xOffset,
+                        -0.9 + heightAdjustment + Math.random() * 0.05, // Adjusted height
+                        z + (Math.random() - 0.5)    // Small random offset in z
+                    );
+                    
+                    // Random slight rotation
+                    stone.rotation.y = Math.random() * Math.PI * 0.2;
+                    
+                    pathGroup.add(stone);
+                }
+            }
+            
+            // Add valley path markers - taller and more visible through the mountain pass
+            for (let z = -2; z <= 22; z += 2) {
+                // Create larger, taller marker stones on the sides of the path
+                const markerGeometry = new THREE.BoxGeometry(0.8, 1.2, 0.8);
+                const markerMaterial = new THREE.MeshStandardMaterial({
+                    color: 0xF5F5F5, // Very light gray, almost white for visibility
+                    roughness: 0.7,
+                    metalness: 0.3
+                });
+                
+                // Left side marker
+                const leftMarker = new THREE.Mesh(markerGeometry, markerMaterial);
+                leftMarker.position.set(-3, -0.4, z); // Taller position, wider placement
+                pathGroup.add(leftMarker);
+                
+                // Right side marker
+                const rightMarker = new THREE.Mesh(markerGeometry, markerMaterial);
+                rightMarker.position.set(3, -0.4, z); // Taller position, wider placement
+                pathGroup.add(rightMarker);
+                
+                // Add lanterns to some of the markers (every 4 units)
+                if (z % 4 === 0) {
+                    // Create lantern base
+                    const lanternBaseGeometry = new THREE.BoxGeometry(0.4, 0.2, 0.4);
+                    const lanternBaseMaterial = new THREE.MeshStandardMaterial({
+                        color: 0x8B4513, // Wood color
+                        roughness: 0.8,
+                        metalness: 0.2
+                    });
+                    
+                    // Left lantern base
+                    const leftLanternBase = new THREE.Mesh(lanternBaseGeometry, lanternBaseMaterial);
+                    leftLanternBase.position.set(-3, 0.2, z);
+                    pathGroup.add(leftLanternBase);
+                    
+                    // Left lantern light
+                    const leftLightGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+                    const leftLightMaterial = new THREE.MeshStandardMaterial({
+                        color: 0xFFFF00,
+                        emissive: 0xFFFF00,
+                        emissiveIntensity: 0.5,
+                        transparent: true,
+                        opacity: 0.8
+                    });
+                    
+                    const leftLight = new THREE.Mesh(leftLightGeometry, leftLightMaterial);
+                    leftLight.position.set(-3, 0.5, z);
+                    pathGroup.add(leftLight);
+                    
+                    // Right lantern base
+                    const rightLanternBase = new THREE.Mesh(lanternBaseGeometry, lanternBaseMaterial);
+                    rightLanternBase.position.set(3, 0.2, z);
+                    pathGroup.add(rightLanternBase);
+                    
+                    // Right lantern light
+                    const rightLight = new THREE.Mesh(leftLightGeometry, leftLightMaterial);
+                    rightLight.position.set(3, 0.5, z);
+                    pathGroup.add(rightLight);
+                }
+            }
+            
+            scene.add(pathGroup);
+            return pathGroup;
+        }
+        
+        const stonePath = createStonePath();        
+        // Chimney smoke
+        const smokeGroup = new THREE.Group();
+        scene.add(smokeGroup);
+        const smokeParticles = [];
+        
+        function createSmokeParticle() {
+            const smokeGeometry = new THREE.SphereGeometry(0.2, 8, 8);
+            const smokeMaterial = new THREE.MeshBasicMaterial({
+                color: 0xdddddd,
+                transparent: true,
+                opacity: 0.7
+            });
+            
+            const smoke = new THREE.Mesh(smokeGeometry, smokeMaterial);
+            // FIXED: Positioned to align with chimney in global coordinates
+            smoke.position.set(3.5, 6, 36.5); // Aligned with chimney position after hut rotation
+            smoke.scale.set(0.5, 0.5, 0.5);
+            
+            smoke.userData = {
+                velocity: {
+                    y: 0.03 + Math.random() * 0.02
+                }
+            };
+            
+            smokeGroup.add(smoke);
+            smokeParticles.push(smoke);
+            
+            return smoke;
+        }
+        
+        // Create initial smoke particles
+        for (let i = 0; i < 5; i++) {
+            createSmokeParticle();
+        }        
+        
+        // Create Ms. Smith with blonde hair and fixed hands
+        function createMsSmith() {
+            const msSmithGroup = new THREE.Group();
+            
+            // Head
+            const headGeometry = new THREE.SphereGeometry(0.7, 32, 32);
+            const headMaterial = new THREE.MeshStandardMaterial({
+                color: 0xffe0bd,
+                roughness: 0.7,
+                metalness: 0.1
+            });
+            
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 1.7;
+            msSmithGroup.add(head);
+            
+            // Blonde Hair - FIXED: adjusted position and rotation
+            const hairGeometry = new THREE.SphereGeometry(0.75, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2);
+            const hairMaterial = new THREE.MeshStandardMaterial({
+                color: 0xF0E68C, // Light blonde/yellow
+                roughness: 0.8,
+                metalness: 0.1
+            });
+            
+            const hair = new THREE.Mesh(hairGeometry, hairMaterial);
+            hair.position.y = 2.0; // FIXED: Raised from 1.85 to 2.0 to better cover the head
+            hair.rotation.x = Math.PI;
+            msSmithGroup.add(hair);
+            
+            // Add long hair strands down the back
+            const longHairGeometry = new THREE.CylinderGeometry(0.7, 0.5, 1.5, 32, 1, true);
+            const longHair = new THREE.Mesh(longHairGeometry, hairMaterial);
+            longHair.position.set(0, 1.3, -0.2); // FIXED: Raised from 1.1 to 1.3 to connect with top hair
+            msSmithGroup.add(longHair);
+            
+            // Glasses - FIXED: moved in front of eyes
+            const glassesGeometry = new THREE.TorusGeometry(0.25, 0.05, 16, 32);
+            const glassesMaterial = new THREE.MeshStandardMaterial({
+                color: 0x000000,
+                roughness: 0.5,
+                metalness: 0.7
+            });
+            
+            const leftLens = new THREE.Mesh(glassesGeometry, glassesMaterial);
+            leftLens.position.set(-0.25, 1.7, 0.65); // FIXED: z from 0.5 to 0.65 (in front of eyes)
+            leftLens.rotation.y = Math.PI / 2;
+            msSmithGroup.add(leftLens);
+            
+            const rightLens = new THREE.Mesh(glassesGeometry, glassesMaterial);
+            rightLens.position.set(0.25, 1.7, 0.65); // FIXED: z from 0.5 to 0.65
+            rightLens.rotation.y = Math.PI / 2;
+            msSmithGroup.add(rightLens);
+            
+            // Bridge of glasses - FIXED: moved forward with lenses
+            const bridgeGeometry = new THREE.BoxGeometry(0.5, 0.05, 0.05);
+            const bridge = new THREE.Mesh(bridgeGeometry, glassesMaterial);
+            bridge.position.set(0, 1.7, 0.65); // FIXED: z from 0.5 to 0.65
+            msSmithGroup.add(bridge);
+            
+            // Sides of glasses (temples) - FIXED: repositioned with lenses
+            const templeGeometry = new THREE.BoxGeometry(0.05, 0.05, 0.5);
+            
+            const leftTemple = new THREE.Mesh(templeGeometry, glassesMaterial);
+            leftTemple.position.set(-0.5, 1.7, 0.4); // FIXED: z from 0.25 to 0.4
+            msSmithGroup.add(leftTemple);
+            
+            const rightTemple = new THREE.Mesh(templeGeometry, glassesMaterial);
+            rightTemple.position.set(0.5, 1.7, 0.4); // FIXED: z from 0.25 to 0.4
+            msSmithGroup.add(rightTemple);
+            
+            // Eyes
+            const eyeGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+            const eyeMaterial = new THREE.MeshStandardMaterial({
+                color: 0x6CA0DC, // Blue eyes
+                roughness: 0.3,
+                metalness: 0.5
+            });
+            
+            const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            leftEye.position.set(-0.25, 1.7, 0.6);
+            leftEye.scale.z = 0.5;
+            msSmithGroup.add(leftEye);
+            
+            const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            rightEye.position.set(0.25, 1.7, 0.6);
+            rightEye.scale.z = 0.5;
+            msSmithGroup.add(rightEye);
+            
+            // Mouth
+            const mouthGeometry = new THREE.TorusGeometry(0.2, 0.03, 16, 32, Math.PI);
+            const mouthMaterial = new THREE.MeshStandardMaterial({
+                color: 0xff6666,
+                roughness: 0.7,
+                metalness: 0.1
+            });
+            
+            const mouth = new THREE.Mesh(mouthGeometry, mouthMaterial);
+            mouth.position.set(0, 1.5, 0.65);
+            mouth.rotation.x = Math.PI / 2;
+            msSmithGroup.add(mouth);
+            
+            // Body
+            const bodyGeometry = new THREE.CylinderGeometry(0.5, 0.7, 1.5, 32);
+            const bodyMaterial = new THREE.MeshStandardMaterial({
+                color: 0x6495ED, // Blue dress
+                roughness: 0.6,
+                metalness: 0.2
+            });
+            
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.7;
+            msSmithGroup.add(body);
+            
+            // Arms - fixed to connect properly to body and hands
+            const armGeometry = new THREE.CylinderGeometry(0.15, 0.15, 1, 16);
+            const armMaterial = new THREE.MeshStandardMaterial({
+                color: 0x6495ED,
+                roughness: 0.6,
+                metalness: 0.2
+            });
+            
+            // Left arm
+            const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+            leftArm.position.set(-0.7, 1, 0);
+            leftArm.rotation.z = Math.PI / 4;
+            msSmithGroup.add(leftArm);
+            
+            // Right arm
+            const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+            rightArm.position.set(0.7, 1, 0);
+            rightArm.rotation.z = -Math.PI / 4;
+            msSmithGroup.add(rightArm);
+            
+            // Hands - properly connected to wrists
+            const handGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+            const handMaterial = new THREE.MeshStandardMaterial({
+                color: 0xffe0bd,
+                roughness: 0.7,
+                metalness: 0.1
+            });
+            
+            // Left hand - properly positioned at end of arm
+            const leftHand = new THREE.Mesh(handGeometry, handMaterial);
+            // Calculate position based on arm length and rotation
+            leftHand.position.set(-1.05, 0.65, 0); // Fixed position to connect to arm
+            leftHand.scale.set(0.8, 0.8, 0.8);
+            msSmithGroup.add(leftHand);
+            
+            // Right hand - properly positioned at end of arm
+            const rightHand = new THREE.Mesh(handGeometry, handMaterial);
+            rightHand.position.set(1.05, 0.65, 0); // Fixed position to connect to arm
+            rightHand.scale.set(0.8, 0.8, 0.8);
+            msSmithGroup.add(rightHand);
+            
+            // Legs
+            const legGeometry = new THREE.CylinderGeometry(0.2, 0.2, 0.8, 16);
+            const legMaterial = new THREE.MeshStandardMaterial({
+                color: 0x000000, // Black shoes/legs
+                roughness: 0.5,
+                metalness: 0.3
+            });
+            
+            const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
+            leftLeg.position.set(-0.3, -0.2, 0);
+            msSmithGroup.add(leftLeg);
+            
+            const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
+            rightLeg.position.set(0.3, -0.2, 0);
+            msSmithGroup.add(rightLeg);
+            
+            // Position Ms. Smith in the scene (north side)
+            msSmithGroup.position.set(0, 0, 35);
+            msSmithGroup.rotation.y = Math.PI;
+            scene.add(msSmithGroup);
+            
+            return msSmithGroup;
+        }
+        
+        const msSmith = createMsSmith();
+        
+        // Create hut
+        function createHut() {
+            const hutGroup = new THREE.Group();
+            
+            // Base/Floor
+            const floorGeometry = new THREE.BoxGeometry(6, 0.2, 6);
+            const floorMaterial = new THREE.MeshStandardMaterial({
+                color: 0x8B4513,
+                roughness: 0.8,
+                metalness: 0.2
+            });
+            
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.position.y = -0.9;
+            hutGroup.add(floor);
+            
+            // Walls
+            const wallMaterial = new THREE.MeshStandardMaterial({
+                color: 0xD2B48C,
+                roughness: 0.8,
+                metalness: 0.1
+            });
+            
+            // FIXED: Adjusted wall height from 4 to 3.5 to better fit with roof
+            // Back wall
+            const backWallGeometry = new THREE.BoxGeometry(6, 3.5, 0.2);
+            const backWall = new THREE.Mesh(backWallGeometry, wallMaterial);
+            backWall.position.set(0, 0.85, -2.9);
+            hutGroup.add(backWall);
+            
+            // Left wall
+            const leftWallGeometry = new THREE.BoxGeometry(0.2, 3.5, 6);
+            const leftWall = new THREE.Mesh(leftWallGeometry, wallMaterial);
+            leftWall.position.set(-2.9, 0.85, 0);
+            hutGroup.add(leftWall);
+            
+            // Right wall
+            const rightWallGeometry = new THREE.BoxGeometry(0.2, 3.5, 6);
+            const rightWall = new THREE.Mesh(rightWallGeometry, wallMaterial);
+            rightWall.position.set(2.9, 0.85, 0);
+            hutGroup.add(rightWall);
+            
+            // Front wall left
+            const frontWallLeftGeometry = new THREE.BoxGeometry(2.5, 3.5, 0.2);
+            const frontWallLeft = new THREE.Mesh(frontWallLeftGeometry, wallMaterial);
+            frontWallLeft.position.set(-1.75, 0.85, 2.9);
+            hutGroup.add(frontWallLeft);
+            
+            // Front wall right
+            const frontWallRightGeometry = new THREE.BoxGeometry(2.5, 3.5, 0.2);
+            const frontWallRight = new THREE.Mesh(frontWallRightGeometry, wallMaterial);
+            frontWallRight.position.set(1.75, 0.85, 2.9);
+            hutGroup.add(frontWallRight);
+            
+            // Door
+            const doorGeometry = new THREE.BoxGeometry(1.2, 3, 0.1);
+            const doorMaterial = new THREE.MeshStandardMaterial({
+                color: 0x8B4513,
+                roughness: 0.7,
+                metalness: 0.3
+            });
+            
+            const door = new THREE.Mesh(doorGeometry, doorMaterial);
+            door.position.set(0, 0.6, 2.9);
+            door.userData = { isInteractive: true, type: 'door' };
+            hutGroup.add(door);
+            
+            // Door handle
+            const handleGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+            const handleMaterial = new THREE.MeshStandardMaterial({
+                color: 0xFFD700,
+                roughness: 0.3,
+                metalness: 0.8
+            });
+            
+            const handle = new THREE.Mesh(handleGeometry, handleMaterial);
+            handle.position.set(0.4, 0.6, 3);
+            hutGroup.add(handle);
+            
+            // FIXED: Raised roof position to avoid overlapping with walls
+            // Roof
+            const roofGeometry = new THREE.ConeGeometry(4.5, 3, 4);
+            const roofMaterial = new THREE.MeshStandardMaterial({
+                color: 0x8B0000,
+                roughness: 0.7,
+                metalness: 0.2
+            });
+            
+            const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+            roof.position.y = 3.75; // FIXED: Adjusted from 4 to 3.75 to better match wall height
+            roof.rotation.y = Math.PI / 4;
+            hutGroup.add(roof);
+            
+            // FIXED: Windows positioned inside the walls
+            // Window
+            const windowGeometry = new THREE.BoxGeometry(1, 1, 0.1);
+            const windowMaterial = new THREE.MeshStandardMaterial({
+                color: 0xADD8E6,
+                roughness: 0.2,
+                metalness: 0.8,
+                transparent: true,
+                opacity: 0.7
+            });
+            
+            // Add window to back wall
+            const backWindow = new THREE.Mesh(windowGeometry, windowMaterial);
+            backWindow.position.set(0, 1.5, -2.85); // FIXED: z from -2.95 to -2.85 (inside wall)
+            hutGroup.add(backWindow);
+            
+            // Add window to left wall
+            const leftWindow = new THREE.Mesh(windowGeometry, windowMaterial);
+            leftWindow.position.set(-2.85, 1.5, 0); // FIXED: x from -2.95 to -2.85
+            leftWindow.rotation.y = Math.PI / 2;
+            hutGroup.add(leftWindow);
+            
+            // Add window to right wall
+            const rightWindow = new THREE.Mesh(windowGeometry, windowMaterial);
+            rightWindow.position.set(2.85, 1.5, 0); // FIXED: x from 2.95 to 2.85
+            rightWindow.rotation.y = Math.PI / 2;
+            hutGroup.add(rightWindow);
+            
+            // Window frames - FIXED: positioned with windows
+            const frameGeometry = new THREE.BoxGeometry(1.2, 0.1, 0.2);
+            const frameMaterial = new THREE.MeshStandardMaterial({
+                color: 0x8B4513,
+                roughness: 0.7,
+                metalness: 0.2
+            });
+            
+            // Add frames to back window
+            const backFrameTop = new THREE.Mesh(frameGeometry, frameMaterial);
+            backFrameTop.position.set(0, 2.05, -2.85); // FIXED: z from -2.9 to -2.85
+            hutGroup.add(backFrameTop);
+            
+            const backFrameBottom = new THREE.Mesh(frameGeometry, frameMaterial);
+            backFrameBottom.position.set(0, 0.95, -2.85); // FIXED: z from -2.9 to -2.85
+            hutGroup.add(backFrameBottom);
+            
+            const backFrameLeft = new THREE.Mesh(frameGeometry, frameMaterial);
+            backFrameLeft.position.set(-0.55, 1.5, -2.85); // FIXED: z from -2.9 to -2.85
+            backFrameLeft.rotation.z = Math.PI / 2;
+            hutGroup.add(backFrameLeft);
+            
+            const backFrameRight = new THREE.Mesh(frameGeometry, frameMaterial);
+            backFrameRight.position.set(0.55, 1.5, -2.85); // FIXED: z from -2.9 to -2.85
+            backFrameRight.rotation.z = Math.PI / 2;
+            hutGroup.add(backFrameRight);
+            
+            // FIXED: Chimney position to align with smoke
+            const chimneyGeometry = new THREE.BoxGeometry(0.8, 2, 0.8);
+            const chimneyMaterial = new THREE.MeshStandardMaterial({
+                color: 0x8B0000,
+                roughness: 0.9,
+                metalness: 0.1
+            });
+            
+            const chimney = new THREE.Mesh(chimneyGeometry, chimneyMaterial);
+            chimney.position.set(1.5, 5, -1.5);
+            hutGroup.add(chimney);
+            
+            // Position the hut in the scene (north side) and rotate 180 degrees
+            hutGroup.position.set(5, 0, 35);
+            hutGroup.rotation.y = Math.PI; // Rotate 180 degrees to face the path
+            scene.add(hutGroup);
+            
+            return { hutGroup, door };
+        }
+        
+        const { hutGroup, door } = createHut();
+        
+        // Animation Loop
+        const clock = new THREE.Clock();
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const elapsedTime = clock.getElapsedTime();
+            
+            // Animate leprechaun
+            leprechaun.position.y = Math.sin(elapsedTime) * 0.1;
+            leprechaun.rotation.y = Math.PI / 4 + Math.sin(elapsedTime * 0.5) * 0.2;
+            
+            // Make hat bounce slightly
+            const hat = leprechaun.children[1];
+            const hatTop = leprechaun.children[2];
+            const hatBand = leprechaun.children[3];
+            const buckle = leprechaun.children[4];
+            
+            const hatBounce = Math.sin(elapsedTime * 3) * 0.05;
+            hat.position.y = 2.2 + hatBounce;
+            hatTop.position.y = 2.7 + hatBounce;
+            hatBand.position.y = 2.25 + hatBounce;
+            buckle.position.y = 2.25 + hatBounce;
+            
+            // Animate Ms. Smith
+            msSmith.position.y = Math.sin(elapsedTime * 0.8) * 0.1;
+            msSmith.rotation.y = Math.PI + Math.sin(elapsedTime * 0.3) * 0.2;
+            
+            // Animate rainbow
+            rainbow.rotation.z = Math.PI / 10 + Math.sin(elapsedTime * 0.3) * 0.05;
+            rainbow.children.forEach((band, index) => {
+                band.material.emissiveIntensity = 0.2 + Math.sin(elapsedTime * 0.5 + index * 0.2) * 0.1;
+            });
+            
+            // Animate pot of gold
+            potOfGold.rotation.y = elapsedTime * 0.1;
+            for (let i = 1; i < potOfGold.children.length; i++) {
+                const coin = potOfGold.children[i];
+                coin.position.y += Math.sin(elapsedTime * 2 + i) * 0.002;
+                coin.material.emissiveIntensity = 0.2 + Math.sin(elapsedTime + i) * 0.1;
+            }
+            
+            // Animate shamrocks
+            shamrocks.forEach((shamrock, index) => {
+                shamrock.rotation.y += 0.001;
+                shamrock.position.y = -0.5 + Math.sin(elapsedTime * 0.5 + index * 0.1) * 0.1;
+            });
+            
+            // Animate smoke from chimney
+            if (Math.random() > 0.95) {
+                createSmokeParticle();
+            }
+            
+            // Animate smoke particles
+            for (let i = smokeParticles.length - 1; i >= 0; i--) {
+                const particle = smokeParticles[i];
+                
+                // Move particle
+                particle.position.y += particle.userData.velocity.y;
+                particle.position.x += Math.sin(elapsedTime * 0.5 + i) * 0.01;
+                particle.position.z += Math.cos(elapsedTime * 0.5 + i) * 0.01;
+                
+                // Scale particle
+                particle.scale.x += 0.003;
+                particle.scale.y += 0.003;
+                particle.scale.z += 0.003;
+                
+                // Decrease opacity
+                particle.material.opacity -= 0.005;
+                
+                // Remove if too transparent
+                if (particle.material.opacity <= 0) {
+                    smokeGroup.remove(particle);
+                    smokeParticles.splice(i, 1);
+                }
+            }
+            
+            // Animate particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const particle = particles[i];
+                
+                // Move particle
+                particle.position.x += particle.userData.velocity.x;
+                particle.position.y += particle.userData.velocity.y;
+                particle.position.z += particle.userData.velocity.z;
+                
+                // Rotate particle
+                particle.rotation.x += particle.userData.rotation.x;
+                particle.rotation.y += particle.userData.rotation.y;
+                particle.rotation.z += particle.userData.rotation.z;
+                
+                // Remove if out of bounds
+                if (particle.position.y < -2) {
+                    scene.remove(particle);
+                    particles.splice(i, 1);
+                    
+                    // Create a new particle to replace it
+                    createParticle();
+                }
+            }
+            
+            // Handle WASD movement
+            const moveSpeed = 0.15;
+            
+            // Get camera direction vectors
+            const forward = new THREE.Vector3();
+            camera.getWorldDirection(forward);
+            forward.y = 0; // Keep movement horizontal
+            forward.normalize();
+            
+            const right = new THREE.Vector3();
+            right.crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
+            
+            // Apply movement based on keys pressed
+            if (keys.w) {
+                camera.position.addScaledVector(forward, moveSpeed);
+                cameraTarget.addScaledVector(forward, moveSpeed);
+                userHasMovedCamera = true;
+            }
+            if (keys.s) {
+                camera.position.addScaledVector(forward, -moveSpeed);
+                cameraTarget.addScaledVector(forward, -moveSpeed);
+                userHasMovedCamera = true;
+            }
+            if (keys.a) {
+                camera.position.addScaledVector(right, -moveSpeed);
+                cameraTarget.addScaledVector(right, -moveSpeed);
+                userHasMovedCamera = true;
+            }
+            if (keys.d) {
+                camera.position.addScaledVector(right, moveSpeed);
+                cameraTarget.addScaledVector(right, moveSpeed);
+                userHasMovedCamera = true;
+            }
+            
+            // Only apply automatic camera movement if user has never manually moved
+            if (!userHasMovedCamera && !isDragging && !isMouseLooking && !keys.w && !keys.a && !keys.s && !keys.d) {
+                // Initial view facing the leprechaun
+                const autoX = Math.sin(elapsedTime * 0.1) * 3;
+                const autoZ = -15 + Math.cos(elapsedTime * 0.1) * 2;
+                
+                camera.position.x = autoX;
+                camera.position.z = autoZ;
+                cameraTarget.set(-3, 2, -15); // Look at leprechaun
+                camera.lookAt(cameraTarget);
+            } else {
+                // Always make sure the camera is looking at the target
+                camera.lookAt(cameraTarget);
+            }
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Handle browser window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        animate();
+    </script>
+</body>
+</html>

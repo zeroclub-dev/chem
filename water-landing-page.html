@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Surface Tension - Presentation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #041e42;
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-size: 5.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, #5ee7df 30%, #b490ca 70%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 1.5rem rgba(94, 231, 223, 0.5));
+            animation: title-animation 5s ease-in-out infinite;
+            transform-style: preserve-3d;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            margin-bottom: 3rem;
+            color: #a7d9ff;
+            text-shadow: 0 0 10px rgba(166, 217, 255, 0.5);
+            animation: subtitle-pulse 3s ease-in-out infinite;
+        }
+
+        .authors {
+            font-size: 1.5rem;
+            margin-bottom: 4rem;
+            color: #8ecae6;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 800px;
+        }
+
+        .author {
+            margin: 0.5rem 1rem;
+            padding: 0.5rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
+            animation: author-float 4s ease-in-out infinite;
+            animation-delay: calc(var(--i) * 0.5s);
+        }
+
+        .button {
+            padding: 1rem 2.5rem;
+            font-size: 1.5rem;
+            background: linear-gradient(45deg, #5ee7df, #b490ca);
+            border: none;
+            border-radius: 50px;
+            color: #041e42;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(94, 231, 223, 0.4);
+            position: relative;
+            overflow: hidden;
+            animation: button-pulse 2s infinite;
+        }
+
+        .button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(94, 231, 223, 0.6);
+        }
+
+        .button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: skewX(-15deg) translateX(-150px);
+            transition: 0.5s;
+        }
+
+        .button:hover::before {
+            transform: skewX(-15deg) translateX(300px);
+        }
+
+        /* States of Water Labels */
+        .states-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .state-label {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: #fff;
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            animation: fade-in-out 8s ease-in-out infinite;
+        }
+
+        /* Animations */
+        @keyframes title-animation {
+            0%, 100% {
+                transform: translateY(0) rotateX(0);
+            }
+            50% {
+                transform: translateY(-10px) rotateX(5deg);
+            }
+        }
+
+        @keyframes subtitle-pulse {
+            0%, 100% {
+                opacity: 0.8;
+            }
+            50% {
+                opacity: 1;
+                text-shadow: 0 0 20px rgba(166, 217, 255, 0.8);
+            }
+        }
+
+        @keyframes author-float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes button-pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes fade-in-out {
+            0%, 100% {
+                opacity: 0;
+            }
+            25%, 75% {
+                opacity: 1;
+            }
+        }
+
+        /* Loading overlay */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #041e42;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 1s ease;
+        }
+
+        .loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader {
+            width: 100px;
+            height: 100px;
+            border: 10px solid transparent;
+            border-radius: 50%;
+            border-top-color: #5ee7df;
+            border-bottom-color: #b490ca;
+            animation: spin 1.5s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading">
+        <div class="loader"></div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <div class="content">
+        <h1>Water Surface Tension</h1>
+        <h2>The Amazing Properties of H<sub>2</sub>O</h2>
+
+        <div class="authors">
+            <div class="author" style="--i: 0">Eli Santaella</div>
+            <div class="author" style="--i: 1">Trevor Levin</div>
+            <div class="author" style="--i: 2">Zain Shah</div>
+            <div class="author" style="--i: 3">Jon Ecija</div>
+        </div>
+
+        <button class="button" id="presentation-button">I'm Feeling Lucky</button>
+    </div>
+
+    <div class="states-container">
+        <div class="state-label" style="top: 15%; left: 15%; animation-delay: 0s;">Precipitation</div>
+        <div class="state-label" style="top: 20%; left: 80%; animation-delay: 2s;">Surface Tension</div>
+        <div class="state-label" style="top: 75%; left: 25%; animation-delay: 4s;">Ice Formation</div>
+        <div class="state-label" style="top: 70%; left: 75%; animation-delay: 6s;">Condensation</div>
+        <div class="state-label" style="top: 45%; left: 55%; animation-delay: 8s;">Boiling Point</div>
+    </div>
+
+    <script>
+        // Wait for everything to load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.querySelector('.loading').classList.add('hidden');
+            }, 1500);
+        });
+
+        // Presentation button event listener
+        document.getElementById('presentation-button').addEventListener('click', () => {
+            // Redirect to the leprechaun-themed page instead
+            window.location.href = "index.html";
+        });
+
+        // Three.js Scene Setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+        
+        // Camera position
+        camera.position.z = 15;
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 2);
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(5, 5, 5);
+        scene.add(directionalLight);
+        
+        const bluePointLight = new THREE.PointLight(0x00bfff, 1, 20);
+        bluePointLight.position.set(-5, 5, 5);
+        scene.add(bluePointLight);
+        
+        const purplePointLight = new THREE.PointLight(0xb490ca, 1, 20);
+        purplePointLight.position.set(5, -5, 5);
+        scene.add(purplePointLight);
+
+        // Water Surface with Surface Tension
+        const waterGeometry = new THREE.PlaneGeometry(10, 10, 50, 50);
+        const waterMaterial = new THREE.MeshPhongMaterial({
+            color: 0x00bfff,
+            transparent: true,
+            opacity: 0.8,
+            shininess: 90,
+            wireframe: false,
+            side: THREE.DoubleSide
+        });
+        
+        const waterSurface = new THREE.Mesh(waterGeometry, waterMaterial);
+        waterSurface.rotation.x = -Math.PI / 2;
+        waterSurface.position.y = -3;
+        scene.add(waterSurface);
+
+        // Modify vertices to create surface tension effect
+        const waterVertices = waterGeometry.attributes.position;
+        const surfaceTensionHeights = [];
+        for (let i = 0; i < waterVertices.count; i++) {
+            surfaceTensionHeights.push(0);
+        }
+
+        // Ice Crystals
+        const iceGroup = new THREE.Group();
+        scene.add(iceGroup);
+        
+        for (let i = 0; i < 15; i++) {
+            const iceGeometry = new THREE.TetrahedronGeometry(Math.random() * 0.4 + 0.2);
+            const iceMaterial = new THREE.MeshPhongMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.8,
+                shininess: 100
+            });
+            
+            const iceCrystal = new THREE.Mesh(iceGeometry, iceMaterial);
+            
+            iceCrystal.position.x = Math.random() * 12 - 6;
+            iceCrystal.position.y = -3 + Math.random() * 1;
+            iceCrystal.position.z = Math.random() * 12 - 6;
+            
+            iceCrystal.rotation.x = Math.random() * Math.PI;
+            iceCrystal.rotation.y = Math.random() * Math.PI;
+            
+            iceGroup.add(iceCrystal);
+        }
+
+        // Raindrops
+        const raindrops = [];
+        const raindropGroup = new THREE.Group();
+        scene.add(raindropGroup);
+        
+        function createRaindrop() {
+            const drop = new THREE.Group();
+            
+            // Raindrop head (sphere)
+            const dropGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+            const dropMaterial = new THREE.MeshPhongMaterial({
+                color: 0x00bfff,
+                transparent: true,
+                opacity: 0.6,
+                shininess: 90
+            });
+            
+            const dropMesh = new THREE.Mesh(dropGeometry, dropMaterial);
+            drop.add(dropMesh);
+            
+            // Raindrop trail
+            const trailGeometry = new THREE.CylinderGeometry(0, 0.1, 0.3, 8);
+            trailGeometry.translate(0, -0.15, 0);
+            const trailMesh = new THREE.Mesh(trailGeometry, dropMaterial);
+            drop.add(trailMesh);
+            
+            // Position randomly in the scene
+            drop.position.x = Math.random() * 20 - 10;
+            drop.position.y = Math.random() * 10 + 5;
+            drop.position.z = Math.random() * 20 - 10;
+            
+            // Store velocity for animation
+            drop.userData = {
+                velocity: Math.random() * 0.05 + 0.05,
+                splashed: false
+            };
+            
+            raindropGroup.add(drop);
+            raindrops.push(drop);
+            
+            return drop;
+        }
+        
+        // Create initial raindrops
+        for (let i = 0; i < 50; i++) {
+            createRaindrop();
+        }
+
+        // Water Vapor/Steam
+        const vaporParticles = [];
+        const vaporGroup = new THREE.Group();
+        scene.add(vaporGroup);
+        
+        function createVaporParticle() {
+            const particleGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+            const particleMaterial = new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.3
+            });
+            
+            const particle = new THREE.Mesh(particleGeometry, particleMaterial);
+            
+            // Position on the water surface
+            particle.position.x = Math.random() * 8 - 4;
+            particle.position.y = -3 + Math.random() * 0.2;
+            particle.position.z = Math.random() * 8 - 4;
+            
+            // Store data for animation
+            particle.userData = {
+                velocity: Math.random() * 0.01 + 0.005,
+                lifespan: Math.random() * 200 + 200
+            };
+            
+            vaporGroup.add(particle);
+            vaporParticles.push(particle);
+            
+            return particle;
+        }
+        
+        // Create initial vapor particles
+        for (let i = 0; i < 50; i++) {
+            createVaporParticle();
+        }
+
+        // Create high surface tension water droplet
+        const highTensionGroup = new THREE.Group();
+        scene.add(highTensionGroup);
+        
+        function createHighTensionDroplet(x, z, size) {
+            const dropletGeometry = new THREE.SphereGeometry(size, 32, 32);
+            const dropletMaterial = new THREE.MeshPhongMaterial({
+                color: 0x00bfff,
+                transparent: true,
+                opacity: 0.7,
+                shininess: 100
+            });
+            
+            const droplet = new THREE.Mesh(dropletGeometry, dropletMaterial);
+            droplet.position.set(x, -3 + size * 0.8, z);
+            
+            // Add ripple effect around the droplet
+            const rippleGeometry = new THREE.RingGeometry(size * 1.2, size * 1.3, 32);
+            const rippleMaterial = new THREE.MeshBasicMaterial({
+                color: 0x00bfff,
+                transparent: true,
+                opacity: 0.3,
+                side: THREE.DoubleSide
+            });
+            
+            const ripple = new THREE.Mesh(rippleGeometry, rippleMaterial);
+            ripple.rotation.x = -Math.PI / 2;
+            ripple.position.y = -3 + 0.01;
+            ripple.position.x = x;
+            ripple.position.z = z;
+            
+            highTensionGroup.add(droplet);
+            highTensionGroup.add(ripple);
+            
+            return { droplet, ripple };
+        }
+        
+        // Create a few high tension droplets on the surface
+        const tensionDroplets = [];
+        tensionDroplets.push(createHighTensionDroplet(2, 2, 0.4));
+        tensionDroplets.push(createHighTensionDroplet(-1.5, -1, 0.3));
+        tensionDroplets.push(createHighTensionDroplet(0, 3, 0.5));
+        tensionDroplets.push(createHighTensionDroplet(-3, 1, 0.35));
+
+        // Create boiling region
+        const boilingGroup = new THREE.Group();
+        scene.add(boilingGroup);
+        
+        const boilingCenter = { x: 3, z: -2 };
+        
+        // Create heat source (visually represent the boiling area)
+        const heatSourceGeometry = new THREE.CircleGeometry(1, 32);
+        const heatSourceMaterial = new THREE.MeshBasicMaterial({
+            color: 0xff0000,
+            transparent: true,
+            opacity: 0.2,
+            side: THREE.DoubleSide
+        });
+        
+        const heatSource = new THREE.Mesh(heatSourceGeometry, heatSourceMaterial);
+        heatSource.rotation.x = -Math.PI / 2;
+        heatSource.position.y = -3 + 0.02;
+        heatSource.position.x = boilingCenter.x;
+        heatSource.position.z = boilingCenter.z;
+        boilingGroup.add(heatSource);
+        
+        // Create bubbles for boiling effect
+        const bubbles = [];
+        function createBubble() {
+            const size = Math.random() * 0.1 + 0.05;
+            const bubbleGeometry = new THREE.SphereGeometry(size, 16, 16);
+            const bubbleMaterial = new THREE.MeshPhongMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.3,
+                shininess: 80
+            });
+            
+            const bubble = new THREE.Mesh(bubbleGeometry, bubbleMaterial);
+            
+            // Position randomly within the boiling area
+            const angle = Math.random() * Math.PI * 2;
+            const radius = Math.random() * 0.8;
+            bubble.position.x = boilingCenter.x + Math.cos(angle) * radius;
+            bubble.position.y = -3;
+            bubble.position.z = boilingCenter.z + Math.sin(angle) * radius;
+            
+            bubble.userData = {
+                velocity: Math.random() * 0.03 + 0.01,
+                lifespan: Math.random() * 100 + 50
+            };
+            
+            boilingGroup.add(bubble);
+            bubbles.push(bubble);
+            
+            return bubble;
+        }
+        
+        // Create initial bubbles
+        for (let i = 0; i < 20; i++) {
+            createBubble();
+        }
+
+        // Animation Loop
+        const clock = new THREE.Clock();
+        let previousTime = 0;
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const elapsedTime = clock.getElapsedTime();
+            const deltaTime = elapsedTime - previousTime;
+            previousTime = elapsedTime;
+            
+            // Animate lights
+            bluePointLight.position.x = Math.sin(elapsedTime * 0.5) * 5;
+            purplePointLight.position.z = Math.cos(elapsedTime * 0.7) * 5;
+            
+            // Animate water surface (ripples and waves)
+            for (let i = 0; i < waterVertices.count; i++) {
+                const x = waterGeometry.attributes.position.getX(i);
+                const z = waterGeometry.attributes.position.getZ(i);
+                
+                // Create dynamic ripples
+                const waveX1 = 0.5 * Math.sin(x * 0.5 + elapsedTime);
+                const waveX2 = 0.25 * Math.sin(x * 1 + elapsedTime * 0.8);
+                const waveZ1 = 0.5 * Math.cos(z * 0.5 + elapsedTime * 0.7);
+                const waveZ2 = 0.25 * Math.cos(z * 1 + elapsedTime * 1.2);
+                
+                // Add surface tension ripple from raindrop impacts
+                let tensionEffect = 0;
+                
+                // Affect vertices based on distance from center
+                tensionEffect = surfaceTensionHeights[i] * Math.exp(-0.1);
+                surfaceTensionHeights[i] = tensionEffect;
+                
+                // Apply all effects
+                waterGeometry.attributes.position.setY(i, waveX1 + waveX2 + waveZ1 + waveZ2 + tensionEffect);
+            }
+            
+            waterGeometry.attributes.position.needsUpdate = true;
+            
+            // Animate raindrops
+            for (let i = raindrops.length - 1; i >= 0; i--) {
+                const drop = raindrops[i];
+                
+                // Move raindrop down
+                drop.position.y -= drop.userData.velocity;
+                
+                // Rotate slightly for more natural look
+                drop.rotation.x += 0.01;
+                
+                // Check for collision with water surface
+                if (drop.position.y < -2.8 && !drop.userData.splashed) {
+                    drop.userData.splashed = true;
+                    
+                    // Create splash effect (implement ripple on water surface)
+                    const dropX = drop.position.x;
+                    const dropZ = drop.position.z;
+                    
+                    // Find closest vertices and apply force
+                    for (let j = 0; j < waterVertices.count; j++) {
+                        const vertX = waterGeometry.attributes.position.getX(j) + waterSurface.position.x;
+                        const vertZ = waterGeometry.attributes.position.getZ(j) + waterSurface.position.z;
+                        
+                        const distance = Math.sqrt(
+                            Math.pow(vertX - dropX, 2) + 
+                            Math.pow(vertZ - dropZ, 2)
+                        );
+                        
+                        if (distance < 1.5) {
+                            const force = 0.2 * Math.exp(-distance);
+                            surfaceTensionHeights[j] += force;
+                        }
+                    }
+                    
+                    // Remove raindrop after splash
+                    setTimeout(() => {
+                        raindropGroup.remove(drop);
+                        raindrops.splice(raindrops.indexOf(drop), 1);
+                    }, 100);
+                }
+                
+                // Reset raindrop if it goes out of bounds
+                if (drop.position.y < -6) {
+                    drop.position.y = Math.random() * 10 + 5;
+                    drop.position.x = Math.random() * 20 - 10;
+                    drop.position.z = Math.random() * 20 - 10;
+                    drop.userData.splashed = false;
+                }
+            }
+            
+            // Create new raindrops occasionally
+            if (Math.random() > 0.95) {
+                createRaindrop();
+            }
+            
+            // Animate vapor/steam particles
+            for (let i = vaporParticles.length - 1; i >= 0; i--) {
+                const particle = vaporParticles[i];
+                
+                // Move particle up
+                particle.position.y += particle.userData.velocity;
+                
+                // Add slight random movement
+                particle.position.x += (Math.random() - 0.5) * 0.01;
+                particle.position.z += (Math.random() - 0.5) * 0.01;
+                
+                // Fade out over time
+                particle.material.opacity = Math.min(0.3, particle.userData.lifespan / 200 * 0.3);
+                
+                // Decrease lifespan
+                particle.userData.lifespan--;
+                
+                // Remove when lifespan ends
+                if (particle.userData.lifespan <= 0) {
+                    vaporGroup.remove(particle);
+                    vaporParticles.splice(i, 1);
+                }
+            }
+            
+            // Add new vapor particles
+            if (Math.random() > 0.95) {
+                createVaporParticle();
+            }
+            
+            // Animate high tension droplets
+            tensionDroplets.forEach(({ droplet, ripple }) => {
+                // Pulsate the droplet slightly to simulate surface tension
+                const scale = 1 + Math.sin(elapsedTime * 2) * 0.05;
+                droplet.scale.set(scale, scale * 0.9, scale);
+                
+                // Make ripple pulsate
+                ripple.scale.set(
+                    1 + Math.sin(elapsedTime * 2 + 1) * 0.1,
+                    1,
+                    1 + Math.sin(elapsedTime * 2 + 1) * 0.1
+                );
+            });
+            
+            // Animate ice crystals
+            iceGroup.rotation.y += 0.001;
+            iceGroup.children.forEach((crystal, i) => {
+                crystal.rotation.x += 0.002 * Math.sin(i);
+                crystal.rotation.z += 0.002 * Math.cos(i);
+                
+                // Oscillate up and down slightly
+                crystal.position.y = -3 + Math.sin(elapsedTime * 0.5 + i * 0.5) * 0.1 + Math.random() * 0.5;
+            });
+            
+            // Animate boiling effect
+            for (let i = bubbles.length - 1; i >= 0; i--) {
+                const bubble = bubbles[i];
+                
+                // Move bubble up
+                bubble.position.y += bubble.userData.velocity;
+                
+                // Add slight wobble
+                bubble.position.x += (Math.random() - 0.5) * 0.01;
+                bubble.position.z += (Math.random() - 0.5) * 0.01;
+                
+                // Decrease lifespan
+                bubble.userData.lifespan--;
+                
+                // Remove when reaches water surface or lifespan ends
+                if (bubble.position.y > -2.7 || bubble.userData.lifespan <= 0) {
+                    boilingGroup.remove(bubble);
+                    bubbles.splice(i, 1);
+                }
+            }
+            
+            // Add new bubbles
+            if (Math.random() > 0.8) {
+                createBubble();
+            }
+            
+            // Pulse the heat source
+            const heatScale = 1 + Math.sin(elapsedTime * 3) * 0.1;
+            heatSource.scale.set(heatScale, 1, heatScale);
+            heatSource.material.opacity = 0.1 + Math.sin(elapsedTime * 2) * 0.05;
+            
+            // Rotate camera slightly for dynamic effect
+            camera.position.x = Math.sin(elapsedTime * 0.1) * 2;
+            camera.position.z = 15 + Math.cos(elapsedTime * 0.1) * 2;
+            camera.lookAt(0, 0, 0);
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Handle browser window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        animate();
+    </script>
+</body>
+</html>

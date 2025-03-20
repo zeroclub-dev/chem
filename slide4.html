@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surface Tension Applications</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0277bd, #01579b);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #29B6F6;
+            font-size: 36px;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        h2 {
+            color: #4FC3F7;
+            font-size: 24px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        p {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .highlight {
+            background-color: rgba(41, 182, 246, 0.2);
+            padding: 3px 6px;
+            border-radius: 4px;
+        }
+        .visual {
+            width: 100%;
+            height: 500px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            margin: 30px 0;
+            overflow: hidden;
+            position: relative;
+        }
+        .application {
+            position: absolute;
+            width: 45%;
+            height: 45%;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .app-title {
+            color: #4FC3F7;
+            font-size: 18px;
+            margin-bottom: 10px;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        .droplet {
+            position: absolute;
+            width: 60px;
+            height: 80px;
+            background-color: rgba(33, 150, 243, 0.8);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            transform: rotate(135deg);
+        }
+        .coin {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: #FFC107;
+            border-radius: 50%;
+            border: 2px solid #FFA000;
+        }
+        .needle {
+            position: absolute;
+            width: 60px;
+            height: 4px;
+            background-color: #9E9E9E;
+            border-radius: 2px;
+        }
+        .water-surface {
+            position: absolute;
+            width: 100%;
+            height: 80px;
+            background: linear-gradient(to bottom, rgba(33, 150, 243, 0.7), rgba(13, 71, 161, 0.9));
+            border-radius: 5px;
+        }
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 900px;
+            margin-top: 20px;
+            padding: 0 30px;
+            box-sizing: border-box;
+        }
+        .nav-button {
+            padding: 12px 24px;
+            background-color: #29B6F6;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .nav-button:hover {
+            background-color: #0288D1;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .cleaning-solution {
+            position: absolute;
+            width: 40px;
+            height: 60px;
+            background-color: rgba(156, 39, 176, 0.7);
+            border-radius: 5px 5px 0 0;
+        }
+        .dirt-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #795548;
+            border-radius: 50%;
+        }
+        .fabric {
+            position: absolute;
+            width: 100%;
+            height: 50%;
+            bottom: 0;
+            background: linear-gradient(45deg, #E0E0E0 25%, transparent 25%, transparent 75%, #E0E0E0 75%, #E0E0E0), 
+                        linear-gradient(45deg, #E0E0E0 25%, transparent 25%, transparent 75%, #E0E0E0 75%, #E0E0E0);
+            background-size: 10px 10px;
+            background-position: 0 0, 5px 5px;
+            border-radius: 0 0 5px 5px;
+        }
+        .insect {
+            position: absolute;
+            width: 30px;
+            height: 15px;
+            background-color: #795548;
+            border-radius: 50% 50% 0 0;
+        }
+        .insect-leg {
+            position: absolute;
+            width: 15px;
+            height: 1px;
+            background-color: #5D4037;
+            transform-origin: 0 50%;
+        }
+        .plant-stem {
+            position: absolute;
+            width: 4px;
+            height: 80px;
+            background-color: #4CAF50;
+            bottom: 0;
+        }
+        .plant-leaf {
+            position: absolute;
+            width: 20px;
+            height: 10px;
+            background-color: #8BC34A;
+            border-radius: 10px;
+            transform-origin: 0 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Surface Tension Applications</h1>
+        
+        <div class="visual" id="applicationsVisual">
+            <!-- Applications will be added by JavaScript -->
+        </div>
+        
+        <h2>Natural Applications</h2>
+        <p>Surface tension plays a crucial role in many natural processes:</p>
+        <ul>
+            <li><span class="highlight">Water striders and insects</span> walking on water</li>
+            <li><span class="highlight">Capillary action</span> in plants to draw water upward</li>
+            <li>Formation of <span class="highlight">water droplets</span> and raindrops</li>
+            <li><span class="highlight">Transportation of nutrients</span> in plants and trees</li>
+        </ul>
+        
+        <h2>Human Applications</h2>
+        <p>We use surface tension in many practical applications:</p>
+        <ul>
+            <li><span class="highlight">Cleaning and detergents</span> - surfactants reduce surface tension, allowing water to spread and clean more effectively</li>
+            <li><span class="highlight">Medical tests</span> that rely on the behavior of fluids</li>
+            <li><span class="highlight">Water-repellent surfaces</span> for clothing and electronics</li>
+            <li><span class="highlight">Floating objects</span> like paper clips or needles on water for survival techniques</li>
+            <li><span class="highlight">Microfluidics</span> in medical and scientific devices</li>
+        </ul>
+    </div>
+    
+    <div class="navigation">
+        <a href="slide3.html" class="nav-button">Previous: Why It's Important</a>
+        <a href="hut.html" class="nav-button">Back to Lab</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const visual = document.getElementById('applicationsVisual');
+            
+            // Create the four application sections
+            const app1 = createApplicationSection(5, 5, 'Water Droplets');
+            const app2 = createApplicationSection(5, 55, 'Floating Objects');
+            const app3 = createApplicationSection(55, 5, 'Cleaning & Detergents');
+            const app4 = createApplicationSection(55, 55, 'Plants & Capillary Action');
+            
+            // Create content for App 1: Water Droplets
+            createWaterDroplets(app1);
+            
+            // Create content for App 2: Floating Objects
+            createFloatingObjects(app2);
+            
+            // Create content for App 3: Cleaning & Detergents
+            createCleaningDemo(app3);
+            
+            // Create content for App 4: Plants & Capillary Action
+            createPlantDemo(app4);
+            
+            // Start animations
+            animateApplications();
+        });
+        
+        function createApplicationSection(leftPercent, topPercent, title) {
+            const visual = document.getElementById('applicationsVisual');
+            const section = document.createElement('div');
+            section.className = 'application';
+            section.style.left = leftPercent + '%';
+            section.style.top = topPercent + '%';
+            
+            const titleEl = document.createElement('div');
+            titleEl.className = 'app-title';
+            titleEl.textContent = title;
+            section.appendChild(titleEl);
+            
+            visual.appendChild(section);
+            return section;
+        }
+        
+        function createWaterDroplets(container) {
+            // Create several water droplets of different sizes
+            for (let i = 0; i < 6; i++) {
+                const size = 20 + Math.random() * 40;
+                const droplet = document.createElement('div');
+                droplet.className = 'droplet';
+                droplet.style.width = size + 'px';
+                droplet.style.height = size * 1.3 + 'px';
+                droplet.style.left = 20 + (i % 3) * 60 + 'px';
+                droplet.style.top = 40 + Math.floor(i / 3) * 70 + 'px';
+                droplet.dataset.originalTop = droplet.style.top;
+                droplet.dataset.speed = 0.5 + Math.random() * 1.5;
+                container.appendChild(droplet);
+            }
+        }
+        
+        function createFloatingObjects(container) {
+            // Create a water surface
+            const surface = document.createElement('div');
+            surface.className = 'water-surface';
+            surface.style.top = '70px';
+            container.appendChild(surface);
+            
+            // Add a floating needle
+            const needle = document.createElement('div');
+            needle.className = 'needle';
+            needle.style.top = '68px';
+            needle.style.left = '50px';
+            container.appendChild(needle);
+            
+            // Add a small indent in the water surface
+            const indent = document.createElement('div');
+            indent.style.position = 'absolute';
+            indent.style.width = '64px';
+            indent.style.height = '8px';
+            indent.style.borderRadius = '50%';
+            indent.style.top = '70px';
+            indent.style.left = '48px';
+            indent.style.background = 'radial-gradient(ellipse at center, rgba(33, 150, 243, 0.4) 0%, rgba(33, 150, 243, 0) 70%)';
+            container.appendChild(indent);
+            
+            // Add a coin that will sink
+            const coin = document.createElement('div');
+            coin.className = 'coin';
+            coin.style.top = '120px';
+            coin.style.left = '120px';
+            coin.dataset.sinking = 'true';
+            coin.dataset.originalTop = '70px';
+            container.appendChild(coin);
+        }
+        
+        function createCleaningDemo(container) {
+            // Create two sections - with and without detergent
+            
+            // Section divider
+            const divider = document.createElement('div');
+            divider.style.position = 'absolute';
+            divider.style.width = '2px';
+            divider.style.height = '100%';
+            divider.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+            divider.style.left = '50%';
+            container.appendChild(divider);
+            
+            // Left section label - Water only
+            const leftLabel = document.createElement('div');
+            leftLabel.style.position = 'absolute';
+            leftLabel.style.top = '30px';
+            leftLabel.style.left = '10%';
+            leftLabel.style.fontSize = '12px';
+            leftLabel.textContent = 'Water Only';
+            container.appendChild(leftLabel);
+            
+            // Right section label - With Detergent
+            const rightLabel = document.createElement('div');
+            rightLabel.style.position = 'absolute';
+            rightLabel.style.top = '30px';
+            rightLabel.style.left = '60%';
+            rightLabel.style.fontSize = '12px';
+            rightLabel.textContent = 'With Detergent';
+            container.appendChild(rightLabel);
+            
+            // Create fabric sections
+            const leftFabric = document.createElement('div');
+            leftFabric.className = 'fabric';
+            leftFabric.style.width = '45%';
+            leftFabric.style.left = '2.5%';
+            container.appendChild(leftFabric);
+            
+            const rightFabric = document.createElement('div');
+            rightFabric.className = 'fabric';
+            rightFabric.style.width = '45%';
+            rightFabric.style.left = '52.5%';
+            container.appendChild(rightFabric);
+            
+            // Add dirt particles to both sides
+            for (let i = 0; i < 20; i++) {
+                // Left side dirt (will stay mostly in place)
+                const leftDirt = document.createElement('div');
+                leftDirt.className = 'dirt-particle';
+                leftDirt.style.left = (5 + Math.random() * 40) + '%';
+                leftDirt.style.top = (60 + Math.random() * 35) + '%';
+                container.appendChild(leftDirt);
+                
+                // Right side dirt (will be removed by detergent)
+                const rightDirt = document.createElement('div');
+                rightDirt.className = 'dirt-particle';
+                rightDirt.style.left = (55 + Math.random() * 40) + '%';
+                rightDirt.style.top = (60 + Math.random() * 35) + '%';
+                rightDirt.dataset.removable = 'true';
+                container.appendChild(rightDirt);
+            }
+            
+            // Add cleaning solution drops
+            const leftSolution = document.createElement('div');
+            leftSolution.className = 'cleaning-solution';
+            leftSolution.style.left = '25%';
+            leftSolution.style.top = '40px';
+            leftSolution.style.backgroundColor = 'rgba(33, 150, 243, 0.7)'; // Blue for water
+            container.appendChild(leftSolution);
+            
+            const rightSolution = document.createElement('div');
+            rightSolution.className = 'cleaning-solution';
+            rightSolution.style.left = '75%';
+            rightSolution.style.top = '40px';
+            rightSolution.style.backgroundColor = 'rgba(156, 39, 176, 0.7)'; // Purple for detergent
+            container.appendChild(rightSolution);
+            
+            // Add water drops that will fall
+            for (let i = 0; i < 5; i++) {
+                // Left side - water drops (stay as drops)
+                const leftDrop = document.createElement('div');
+                leftDrop.className = 'droplet';
+                leftDrop.style.width = '15px';
+                leftDrop.style.height = '20px';
+                leftDrop.style.left = (10 + i * 8) + '%';
+                leftDrop.style.top = '40px';
+                leftDrop.dataset.type = 'water';
+                leftDrop.style.opacity = '0';
+                container.appendChild(leftDrop);
+                
+                // Right side - detergent drops (spread out)
+                const rightDrop = document.createElement('div');
+                rightDrop.className = 'droplet';
+                rightDrop.style.width = '15px';
+                rightDrop.style.height = '20px';
+                rightDrop.style.left = (60 + i * 8) + '%';
+                rightDrop.style.top = '40px';
+                rightDrop.dataset.type = 'detergent';
+                rightDrop.style.opacity = '0';
+                rightDrop.style.backgroundColor = 'rgba(156, 39, 176, 0.7)';
+                container.appendChild(rightDrop);
+            }
+        }
+        
+        function createPlantDemo(container) {
+            // Create two identical plant stems
+            
+            // Left plant with lower glass
+            const leftPlant = document.createElement('div');
+            leftPlant.className = 'plant-stem';
+            leftPlant.style.left = '30%';
+            container.appendChild(leftPlant);
+            
+            // Right plant with higher glass
+            const rightPlant = document.createElement('div');
+            rightPlant.className = 'plant-stem';
+            rightPlant.style.left = '70%';
+            container.appendChild(rightPlant);
+            
+            // Add leaves to plants
+            for (let i = 0; i < 3; i++) {
+                // Left plant leaves
+                const leftLeaf1 = document.createElement('div');
+                leftLeaf1.className = 'plant-leaf';
+                leftLeaf1.style.left = 'calc(30% + 4px)';
+                leftLeaf1.style.bottom = (20 + i * 25) + 'px';
+                leftLeaf1.style.transform = 'rotate(30deg)';
+                container.appendChild(leftLeaf1);
+                
+                const leftLeaf2 = document.createElement('div');
+                leftLeaf2.className = 'plant-leaf';
+                leftLeaf2.style.left = '30%';
+                leftLeaf2.style.bottom = (30 + i * 25) + 'px';
+                leftLeaf2.style.transform = 'rotate(150deg)';
+                container.appendChild(leftLeaf2);
+                
+                // Right plant leaves
+                const rightLeaf1 = document.createElement('div');
+                rightLeaf1.className = 'plant-leaf';
+                rightLeaf1.style.left = 'calc(70% + 4px)';
+                rightLeaf1.style.bottom = (20 + i * 25) + 'px';
+                rightLeaf1.style.transform = 'rotate(30deg)';
+                container.appendChild(rightLeaf1);
+                
+                const rightLeaf2 = document.createElement('div');
+                rightLeaf2.className = 'plant-leaf';
+                rightLeaf2.style.left = '70%';
+                rightLeaf2.style.bottom = (30 + i * 25) + 'px';
+                rightLeaf2.style.transform = 'rotate(150deg)';
+                container.appendChild(rightLeaf2);
+            }
+            
+            // Add water containers at the bottom
+            const leftWater = document.createElement('div');
+            leftWater.className = 'water-surface';
+            leftWater.style.width = '40px';
+            leftWater.style.height = '30px';
+            leftWater.style.left = 'calc(30% - 18px)';
+            leftWater.style.bottom = '0';
+            leftWater.style.borderRadius = '5px 5px 0 0';
+            container.appendChild(leftWater);
+            
+            const rightWater = document.createElement('div');
+            rightWater.className = 'water-surface';
+            rightWater.style.width = '40px';
+            rightWater.style.height = '30px';
+            rightWater.style.left = 'calc(70% - 18px)';
+            rightWater.style.bottom = '0';
+            rightWater.style.borderRadius = '5px 5px 0 0';
+            container.appendChild(rightWater);
+            
+            // Add water droplets moving up the stems
+            for (let i = 0; i < 8; i++) {
+                // Left plant droplets
+                const leftDroplet = document.createElement('div');
+                leftDroplet.className = 'water-droplet';
+                leftDroplet.style.left = 'calc(30% - 1px)';
+                leftDroplet.style.bottom = (5 + i * 9) + 'px';
+                leftDroplet.style.opacity = i < 4 ? '0.8' : '0.4'; // Fade out higher up
+                leftDroplet.dataset.plant = 'left';
+                leftDroplet.dataset.index = i;
+                container.appendChild(leftDroplet);
+                
+                // Right plant droplets (go higher due to stronger capillary action)
+                const rightDroplet = document.createElement('div');
+                rightDroplet.className = 'water-droplet';
+                rightDroplet.style.left = 'calc(70% - 1px)';
+                rightDroplet.style.bottom = (5 + i * 10) + 'px';
+                rightDroplet.style.opacity = '0.8'; // All visible
+                rightDroplet.dataset.plant = 'right';
+                rightDroplet.dataset.index = i;
+                container.appendChild(rightDroplet);
+            }
+            
+            // Add labels for comparison
+            const leftLabel = document.createElement('div');
+            leftLabel.style.position = 'absolute';
+            leftLabel.style.bottom = '35px';
+            leftLabel.style.left = '15%';
+            leftLabel.style.fontSize = '12px';
+            leftLabel.textContent = 'Normal Water';
+            container.appendChild(leftLabel);
+            
+            const rightLabel = document.createElement('div');
+            rightLabel.style.position = 'absolute';
+            rightLabel.style.bottom = '35px';
+            rightLabel.style.left = '60%';
+            rightLabel.style.fontSize = '12px';
+            rightLabel.textContent = 'Higher Surface Tension';
+            container.appendChild(rightLabel);
+        }
+        
+        function animateApplications() {
+            // Animate water droplets
+            const droplets = document.querySelectorAll('.droplet');
+            droplets.forEach(droplet => {
+                if (droplet.dataset.type) {
+                    // Cleaning demo droplets
+                    animateCleaningDrops(droplet);
+                } else {
+                    // Regular droplets
+                    const originalTop = parseInt(droplet.dataset.originalTop);
+                    const speed = parseFloat(droplet.dataset.speed || '1');
+                    
+                    setInterval(() => {
+                        const newTop = originalTop + Math.sin(Date.now() / 1000 * speed) * 10;
+                        droplet.style.top = newTop + 'px';
+                    }, 50);
+                }
+            });
+            
+            // Animate the coin sinking
+            const coin = document.querySelector('.coin');
+            if (coin && coin.dataset.sinking === 'true') {
+                let position = parseInt(coin.style.top);
+                const finalPosition = 200;
+                const originalTop = parseInt(coin.dataset.originalTop);
+                
+                let opacity = 1;
+                
+                const sinkInterval = setInterval(() => {
+                    position += 1;
+                    coin.style.top = position + 'px';
+                    
+                    if (position > 130) {
+                        // Start fading when it's deeper
+                        opacity -= 0.02;
+                        coin.style.opacity = opacity.toString();
+                    }
+                    
+                    if (position >= finalPosition || opacity <= 0) {
+                        clearInterval(sinkInterval);
+                        // Reset position for continuous demo
+                        setTimeout(() => {
+                            coin.style.top = originalTop;
+                            coin.style.opacity = '1';
+                            animateApplications();
+                        }, 2000);
+                    }
+                }, 100);
+            }
+            
+            // Animate cleaner droplets and dirt removal
+            animateCleaningProcess();
+            
+            // Animate plant capillary action
+            animatePlantDroplets();
+        }
+        
+        function animateCleaningDrops(droplet) {
+            setTimeout(() => {
+                droplet.style.opacity = '1';
+                let position = parseInt(droplet.style.top);
+                const finalPosition = 150;
+                
+                // Determine if it's water or detergent
+                const isDetergent = droplet.dataset.type === 'detergent';
+                
+                const fallInterval = setInterval(() => {
+                    position += 5;
+                    droplet.style.top = position + 'px';
+                    
+                    if (position >= finalPosition) {
+                        clearInterval(fallInterval);
+                        
+                        // When they hit fabric, handle differently
+                        if (isDetergent) {
+                            // Detergent drops spread out
+                            droplet.style.transition = 'all 0.5s ease-out';
+                            droplet.style.width = '30px';
+                            droplet.style.height = '4px';
+                            droplet.style.borderRadius = '50%';
+                            droplet.style.opacity = '0.4';
+                        } else {
+                            // Water drops stay as drops
+                            droplet.style.transition = 'all 0.2s ease-out';
+                            droplet.style.opacity = '0.6';
+                        }
+                        
+                        // Reset after a delay
+                        setTimeout(() => {
+                            droplet.style.transition = 'none';
+                            droplet.style.opacity = '0';
+                            droplet.style.top = '40px';
+                            if (isDetergent) {
+                                droplet.style.width = '15px';
+                                droplet.style.height = '20px';
+                                droplet.style.borderRadius = '50% 50% 50% 50% / 60% 60% 40% 40%';
+                            }
+                        }, 2000);
+                    }
+                }, 100);
+            }, Math.random() * 3000); // Random delay for natural appearance
+        }
+        
+        function animateCleaningProcess() {
+            // Get all removable dirt particles
+            const removableDirt = document.querySelectorAll('.dirt-particle[data-removable="true"]');
+            
+            removableDirt.forEach((dirt, index) => {
+                setTimeout(() => {
+                    // Fade and remove dirt
+                    dirt.style.transition = 'all 1s ease-out';
+                    dirt.style.opacity = '0';
+                    dirt.style.transform = 'translateY(10px)';
+                    
+                    // Reset after animation
+                    setTimeout(() => {
+                        dirt.style.transition = 'none';
+                        dirt.style.opacity = '1';
+                        dirt.style.transform = 'translateY(0)';
+                    }, 3000);
+                }, 3000 + index * 300); // Staggered removal
+            });
+        }
+        
+        function animatePlantDroplets() {
+            const leftDroplets = document.querySelectorAll('.water-droplet[data-plant="left"]');
+            const rightDroplets = document.querySelectorAll('.water-droplet[data-plant="right"]');
+            
+            // Animate left plant droplets (slower, don't go as high)
+            leftDroplets.forEach(droplet => {
+                const index = parseInt(droplet.dataset.index);
+                const speed = 0.5 + (index * 0.1);
+                const maxHeight = 40 + (index * 5);
+                
+                animateDropletMovement(droplet, speed, maxHeight, index < 4);
+            });
+            
+            // Animate right plant droplets (faster, go higher)
+            rightDroplets.forEach(droplet => {
+                const index = parseInt(droplet.dataset.index);
+                const speed = 0.8 + (index * 0.15);
+                const maxHeight = 50 + (index * 8);
+                
+                animateDropletMovement(droplet, speed, maxHeight, true);
+            });
+        }
+        
+        function animateDropletMovement(droplet, speed, maxHeight, visible) {
+            if (!visible) {
+                droplet.style.opacity = '0';
+                return;
+            }
+            
+            const basePosition = parseInt(droplet.style.bottom);
+            let position = basePosition;
+            let direction = 1;
+            
+            setInterval(() => {
+                position += direction * speed;
+                
+                // Change direction at limits
+                if (position >= basePosition + maxHeight) {
+                    direction = -1;
+                } else if (position <= basePosition) {
+                    direction = 1;
+                }
+                
+                droplet.style.bottom = position + 'px';
+                
+                // Adjust opacity based on height
+                const heightPercent = (position - basePosition) / maxHeight;
+                droplet.style.opacity = (0.8 - heightPercent * 0.5).toString();
+            }, 100);
+        }
+    </script>
+</body>
+</html>

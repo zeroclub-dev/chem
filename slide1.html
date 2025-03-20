@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What is Surface Tension?</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #2a4858);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #4FC3F7;
+            font-size: 36px;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        p {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .highlight {
+            background-color: rgba(79, 195, 247, 0.2);
+            padding: 3px 6px;
+            border-radius: 4px;
+        }
+        .visual {
+            width: 100%;
+            height: 400px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            margin: 30px 0;
+            overflow: hidden;
+            position: relative;
+        }
+        .molecule {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #81D4FA;
+            box-shadow: 0 0 10px #29B6F6;
+        }
+        .molecule-bond {
+            position: absolute;
+            background-color: #4FC3F7;
+            height: 3px;
+            transform-origin: left center;
+        }
+        .surface-marker {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background-color: #FFD54F;
+            top: 100px;
+            left: 0;
+            box-shadow: 0 0 10px #FFB300;
+        }
+        .force-arrow {
+            position: absolute;
+            width: 60px;
+            height: 20px;
+            background-color: transparent;
+        }
+        .force-arrow::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            border-left: 15px solid #FF5252;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+        }
+        .force-arrow::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 45px;
+            height: 4px;
+            background-color: #FF5252;
+            transform: translateY(-50%);
+        }
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 900px;
+            margin-top: 20px;
+            padding: 0 30px;
+            box-sizing: border-box;
+        }
+        .nav-button {
+            padding: 12px 24px;
+            background-color: #4FC3F7;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .nav-button:hover {
+            background-color: #29B6F6;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .disabled {
+            background-color: #90A4AE;
+            cursor: not-allowed;
+        }
+        .disabled:hover {
+            background-color: #90A4AE;
+            transform: none;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>What is Surface Tension?</h1>
+        
+        <div class="visual" id="surfaceTensionVisual">
+            <div class="surface-marker"></div>
+            <!-- Molecules will be added by JavaScript -->
+        </div>
+        
+        <p>Surface tension is the property of the surface of a liquid that allows it to <span class="highlight">resist an external force</span> due to the cohesive nature of its molecules.</p>
+        
+        <p>These <span class="highlight">cohesive forces</span> between liquid molecules (such as water) are responsible for surface tension. All the cohesive forces between molecules in a liquid are shared with nearby molecules.</p>
+        
+        <p>Water molecules want to <span class="highlight">cling to each other</span>. But at the surface, there are fewer molecules to cling to because there's air above it. This results in a <span class="highlight">stronger bond</span> between the molecules at the surface, creating a surface layer. This is considered a barrier between the atmosphere and water.</p>
+    </div>
+    
+    <div class="navigation">
+        <a href="hut.html" class="nav-button">Back to Lab</a>
+        <a href="slide2.html" class="nav-button">Next: Why It Happens</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const visual = document.getElementById('surfaceTensionVisual');
+            const surfaceY = 100; // Position of the surface line
+            
+            // Create molecules below surface (more densely packed)
+            for (let i = 0; i < 40; i++) {
+                createMolecule(
+                    Math.random() * visual.offsetWidth,
+                    surfaceY + 50 + Math.random() * 200,
+                    'regular'
+                );
+            }
+            
+            // Create surface molecules (special)
+            for (let i = 0; i < 12; i++) {
+                const mol = createMolecule(
+                    50 + i * 70,
+                    surfaceY,
+                    'surface'
+                );
+                mol.style.backgroundColor = '#4FC3F7';
+                mol.style.boxShadow = '0 0 15px #29B6F6';
+            }
+            
+            // Create bonds between molecules
+            createBonds();
+            
+            // Create force arrows to show surface tension
+            for (let i = 0; i < 3; i++) {
+                const arrow = document.createElement('div');
+                arrow.className = 'force-arrow';
+                arrow.style.left = (150 + i * 200) + 'px';
+                arrow.style.top = (surfaceY - 30) + 'px';
+                visual.appendChild(arrow);
+            }
+            
+            // Animation
+            animateMolecules();
+        });
+        
+        function createMolecule(x, y, type) {
+            const visual = document.getElementById('surfaceTensionVisual');
+            const molecule = document.createElement('div');
+            molecule.className = 'molecule';
+            molecule.dataset.type = type;
+            
+            molecule.style.left = x + 'px';
+            molecule.style.top = y + 'px';
+            
+            visual.appendChild(molecule);
+            return molecule;
+        }
+        
+        function createBonds() {
+            const visual = document.getElementById('surfaceTensionVisual');
+            const molecules = document.querySelectorAll('.molecule');
+            
+            // Create bonds between nearby molecules
+            for (let i = 0; i < molecules.length; i++) {
+                const mol1 = molecules[i];
+                const x1 = parseInt(mol1.style.left);
+                const y1 = parseInt(mol1.style.top);
+                
+                for (let j = i + 1; j < molecules.length; j++) {
+                    const mol2 = molecules[j];
+                    const x2 = parseInt(mol2.style.left);
+                    const y2 = parseInt(mol2.style.top);
+                    
+                    const dist = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                    
+                    // Only create bonds if molecules are close enough
+                    if (dist < 80) {
+                        const bond = document.createElement('div');
+                        bond.className = 'molecule-bond';
+                        bond.style.left = x1 + 15 + 'px';
+                        bond.style.top = y1 + 15 + 'px';
+                        bond.style.width = dist + 'px';
+                        
+                        // Calculate angle
+                        const angle = Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI);
+                        bond.style.transform = `rotate(${angle}deg)`;
+                        
+                        // Make surface bonds stronger
+                        if (mol1.dataset.type === 'surface' && mol2.dataset.type === 'surface') {
+                            bond.style.height = '4px';
+                            bond.style.backgroundColor = '#29B6F6';
+                        }
+                        
+                        visual.appendChild(bond);
+                    }
+                }
+            }
+        }
+        
+        function animateMolecules() {
+            const molecules = document.querySelectorAll('.molecule');
+            const surfaceY = 100;
+            
+            molecules.forEach(molecule => {
+                // Only animate non-surface molecules
+                if (molecule.dataset.type !== 'surface') {
+                    const originalY = parseInt(molecule.style.top);
+                    const originalX = parseInt(molecule.style.left);
+                    
+                    // Simple animation with slight vibration
+                    setInterval(() => {
+                        const newY = originalY + (Math.random() * 10 - 5);
+                        const newX = originalX + (Math.random() * 10 - 5);
+                        
+                        molecule.style.top = newY + 'px';
+                        molecule.style.left = newX + 'px';
+                    }, 1000 + Math.random() * 1000);
+                } else {
+                    // Surface molecules move less, showing stronger bonds
+                    const originalX = parseInt(molecule.style.left);
+                    
+                    setInterval(() => {
+                        const newX = originalX + (Math.random() * 6 - 3);
+                        molecule.style.left = newX + 'px';
+                        
+                        // Small up and down movement
+                        const newY = surfaceY + (Math.random() * 4 - 2);
+                        molecule.style.top = newY + 'px';
+                    }, 1500 + Math.random() * 1000);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

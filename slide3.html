@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why Surface Tension Is Important</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2e7d32, #1b5e20);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #8BC34A;
+            font-size: 36px;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        p {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .highlight {
+            background-color: rgba(139, 195, 74, 0.2);
+            padding: 3px 6px;
+            border-radius: 4px;
+        }
+        .visual {
+            width: 100%;
+            height: 400px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            margin: 30px 0;
+            overflow: hidden;
+            position: relative;
+        }
+        .pond {
+            position: absolute;
+            width: 80%;
+            height: 150px;
+            bottom: 80px;
+            left: 10%;
+            background: linear-gradient(to bottom, #2196F3, #0D47A1);
+            border-radius: 50% / 20px;
+            box-shadow: 0 0 20px rgba(33, 150, 243, 0.5);
+        }
+        .water-surface {
+            position: absolute;
+            width: 100%;
+            height: 20px;
+            top: 0;
+            background: linear-gradient(to bottom, rgba(33, 150, 243, 0.2), rgba(33, 150, 243, 0.8));
+            border-radius: 50% 50% 0 0 / 10px;
+        }
+        .ground {
+            position: absolute;
+            width: 100%;
+            height: 80px;
+            bottom: 0;
+            background: linear-gradient(to bottom, #795548, #5D4037);
+            border-radius: 0 0 10px 10px;
+        }
+        .bug {
+            position: absolute;
+            width: 30px;
+            height: 15px;
+            background-color: #795548;
+            border-radius: 50% 50% 0 0;
+            z-index: 3;
+        }
+        .bug::before, .bug::after {
+            content: '';
+            position: absolute;
+            background-color: #795548;
+            width: 3px;
+            height: 12px;
+        }
+        .bug-leg {
+            position: absolute;
+            width: 15px;
+            height: 2px;
+            background-color: #5D4037;
+            transform-origin: 0 50%;
+        }
+        .water-indent {
+            position: absolute;
+            width: 40px;
+            height: 4px;
+            background: radial-gradient(ellipse at center, rgba(33, 150, 243, 0.8) 0%, rgba(33, 150, 243, 0) 70%);
+            border-radius: 50%;
+        }
+        .plant {
+            position: absolute;
+            bottom: 80px;
+            width: 10px;
+            height: 120px;
+            background: linear-gradient(to top, #4CAF50, #388E3C);
+            border-radius: 5px;
+            z-index: 2;
+        }
+        .leaf {
+            position: absolute;
+            width: 30px;
+            height: 15px;
+            background-color: #8BC34A;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        .water-droplet {
+            position: absolute;
+            width: 6px;
+            height: 10px;
+            background-color: rgba(33, 150, 243, 0.7);
+            border-radius: 50%;
+            z-index: 3;
+        }
+        .small-object {
+            position: absolute;
+            width: 20px;
+            height: 4px;
+            background-color: #E0E0E0;
+            border-radius: 2px;
+            z-index: 3;
+        }
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 900px;
+            margin-top: 20px;
+            padding: 0 30px;
+            box-sizing: border-box;
+        }
+        .nav-button {
+            padding: 12px 24px;
+            background-color: #8BC34A;
+            color: #333;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .nav-button:hover {
+            background-color: #7CB342;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Why Surface Tension Is Important</h1>
+        
+        <div class="visual" id="importanceVisual">
+            <div class="pond">
+                <div class="water-surface"></div>
+            </div>
+            <div class="ground"></div>
+            <!-- Bugs, plants and other elements will be added by JavaScript -->
+        </div>
+        
+        <p>The surface tension of water is so important because it allows <span class="highlight">dense objects to float</span> that otherwise would not. In general, denser objects sink and less dense objects float, but surface tension provides a barrier that can support some lightweight objects.</p>
+        
+        <p>Some organisms, like <span class="highlight">lightweight bugs and water striders</span>, depend on their ability to float to survive, and the surface tension is the reason they can.</p>
+        
+        <p>Also, the surface tension is high enough that <span class="highlight">plants can draw the water from the ground</span>, keeping the plants and trees alive. If the water had a weaker surface tension, the plants would not be able to obtain the water they need, meaning they would die.</p>
+    </div>
+    
+    <div class="navigation">
+        <a href="hut.html" class="nav-button">Back to Lab</a>
+        <a href="slide4.html" class="nav-button">Next: Applications</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const visual = document.getElementById('importanceVisual');
+            const pond = document.querySelector('.pond');
+            const pondRect = pond.getBoundingClientRect();
+            const pondLeft = pondRect.left - visual.getBoundingClientRect().left;
+            const pondTop = pondRect.top - visual.getBoundingClientRect().top;
+            const pondWidth = pondRect.width;
+            const pondHeight = pondRect.height;
+            
+            // Create water striders
+            createBug(pondLeft + pondWidth * 0.2, pondTop, 1);
+            createBug(pondLeft + pondWidth * 0.5, pondTop, -1);
+            createBug(pondLeft + pondWidth * 0.8, pondTop, 1);
+            
+            // Create water indents under bugs
+            createWaterIndent(pondLeft + pondWidth * 0.2, pondTop + 5);
+            createWaterIndent(pondLeft + pondWidth * 0.5, pondTop + 5);
+            createWaterIndent(pondLeft + pondWidth * 0.8, pondTop + 5);
+            
+            // Create small floating objects (like paper clips)
+            createSmallObject(pondLeft + pondWidth * 0.35, pondTop + 2);
+            createSmallObject(pondLeft + pondWidth * 0.65, pondTop + 3);
+            
+            // Create plants for capillary action demonstration
+            createPlant(pondLeft + pondWidth * 0.15, 3);
+            createPlant(pondLeft + pondWidth * 0.85, 4);
+            
+            // Add water droplets moving up the plants
+            animateCapillaryAction();
+            
+            // Animate bugs
+            animateBugs();
+        });
+        
+        function createBug(x, y, direction) {
+            const visual = document.getElementById('importanceVisual');
+            
+            // Bug body
+            const bug = document.createElement('div');
+            bug.className = 'bug';
+            bug.style.left = x + 'px';
+            bug.style.top = y + 'px';
+            bug.dataset.direction = direction;
+            bug.dataset.originalX = x;
+            
+            // Bug legs
+            for (let i = 0; i < 6; i++) {
+                const leg = document.createElement('div');
+                leg.className = 'bug-leg';
+                
+                // Position legs along the body
+                const offset = (i < 3) ? -5 + i * 5 : -5 + (i - 3) * 5;
+                leg.style.left = 15 + 'px';
+                leg.style.top = 7 + offset + 'px';
+                
+                // Angle legs outward
+                const angle = (i < 3) ? 30 : 150;
+                leg.style.transform = `rotate(${angle}deg)`;
+                
+                bug.appendChild(leg);
+            }
+            
+            visual.appendChild(bug);
+        }
+        
+        function createWaterIndent(x, y) {
+            const visual = document.getElementById('importanceVisual');
+            const indent = document.createElement('div');
+            indent.className = 'water-indent';
+            indent.style.left = x - 20 + 'px'; // Center under bug
+            indent.style.top = y + 'px';
+            visual.appendChild(indent);
+        }
+        
+        function createSmallObject(x, y) {
+            const visual = document.getElementById('importanceVisual');
+            const object = document.createElement('div');
+            object.className = 'small-object';
+            object.style.left = x + 'px';
+            object.style.top = y + 'px';
+            visual.appendChild(object);
+            
+            // Add water indent under the object
+            const indent = document.createElement('div');
+            indent.className = 'water-indent';
+            indent.style.left = x - 10 + 'px';
+            indent.style.top = y + 8 + 'px';
+            visual.appendChild(indent);
+            
+            // Slightly bobbing animation
+            setInterval(() => {
+                const newY = y + Math.sin(Date.now() / 1000) * 2;
+                object.style.top = newY + 'px';
+                indent.style.top = newY + 8 + 'px';
+            }, 50);
+        }
+        
+        function createPlant(x, numLeaves) {
+            const visual = document.getElementById('importanceVisual');
+            
+            // Create stem
+            const plant = document.createElement('div');
+            plant.className = 'plant';
+            plant.style.left = x + 'px';
+            plant.dataset.x = x;
+            visual.appendChild(plant);
+            
+            // Create leaves
+            for (let i = 0; i < numLeaves; i++) {
+                const leaf = document.createElement('div');
+                leaf.className = 'leaf';
+                
+                const side = i % 2 === 0 ? -1 : 1; // Alternate sides
+                const height = 20 + i * 25; // Space leaves vertically
+                
+                leaf.style.left = (x - 15 + 30 * (side > 0 ? 1 : 0)) + 'px';
+                leaf.style.bottom = (80 + height) + 'px';
+                leaf.style.transform = `rotate(${side * 20}deg)`;
+                
+                visual.appendChild(leaf);
+            }
+        }
+        
+        function createWaterDroplet(x, y) {
+            const visual = document.getElementById('importanceVisual');
+            const droplet = document.createElement('div');
+            droplet.className = 'water-droplet';
+            droplet.style.left = x + 'px';
+            droplet.style.top = y + 'px';
+            droplet.dataset.plant = x;
+            droplet.dataset.startY = y;
+            visual.appendChild(droplet);
+            return droplet;
+        }
+        
+        function animateCapillaryAction() {
+            const plants = document.querySelectorAll('.plant');
+            
+            plants.forEach(plant => {
+                const x = parseFloat(plant.dataset.x) + 2; // Center on plant
+                
+                // Create initial droplets at different heights
+                for (let i = 0; i < 5; i++) {
+                    const pondTop = document.querySelector('.pond').getBoundingClientRect().top - 
+                                    document.getElementById('importanceVisual').getBoundingClientRect().top;
+                    const startY = pondTop - i * 30;
+                    const droplet = createWaterDroplet(x, startY);
+                    
+                    // Animate the droplet moving up
+                    animateDroplet(droplet);
+                }
+                
+                // Create new droplets periodically
+                setInterval(() => {
+                    const pondTop = document.querySelector('.pond').getBoundingClientRect().top - 
+                                    document.getElementById('importanceVisual').getBoundingClientRect().top;
+                    const droplet = createWaterDroplet(x, pondTop);
+                    animateDroplet(droplet);
+                }, 3000);
+            });
+        }
+        
+        function animateDroplet(droplet) {
+            const startY = parseFloat(droplet.dataset.startY);
+            const endY = startY - 150; // Move up 150px
+            const duration = 8000 + Math.random() * 4000; // 8-12 seconds
+            const startTime = Date.now();
+            
+            function updatePosition() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Ease out cubic 
+                const easedProgress = 1 - Math.pow(1 - progress, 3);
+                
+                const currentY = startY - easedProgress * (startY - endY);
+                droplet.style.top = currentY + 'px';
+                
+                // Add some wobble
+                const wobble = Math.sin(elapsed / 300) * 1;
+                droplet.style.left = (parseFloat(droplet.dataset.plant) + wobble) + 'px';
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updatePosition);
+                } else {
+                    droplet.remove(); // Remove when animation is complete
+                }
+            }
+            
+            requestAnimationFrame(updatePosition);
+        }
+        
+        function animateBugs() {
+            const bugs = document.querySelectorAll('.bug');
+            const pondWidth = document.querySelector('.pond').offsetWidth;
+            const pondLeft = parseFloat(document.querySelector('.pond').style.left) || 
+                           (document.querySelector('.pond').getBoundingClientRect().left - 
+                            document.getElementById('importanceVisual').getBoundingClientRect().left);
+            
+            bugs.forEach(bug => {
+                const direction = parseInt(bug.dataset.direction);
+                const originalX = parseFloat(bug.dataset.originalX);
+                const range = 100; // Movement range
+                let progress = 0;
+                
+                function move() {
+                    progress += 0.01 * direction;
+                    
+                    if (Math.abs(progress) > 1) {
+                        direction = -direction;
+                        bug.dataset.direction = direction;
+                        progress = Math.sign(progress);
+                    }
+                    
+                    const x = originalX + range * Math.sin(progress * Math.PI);
+                    bug.style.left = x + 'px';
+                    
+                    // Slightly adjust the y-position to simulate the water surface movement
+                    const y = parseFloat(bug.dataset.originalTop || bug.style.top) + Math.sin(Date.now() / 500) * 2;
+                    bug.style.top = y + 'px';
+                    
+                    // Store original top if not already stored
+                    if (!bug.dataset.originalTop) {
+                        bug.dataset.originalTop = bug.style.top;
+                    }
+                    
+                    // Update water indents
+                    const indents = document.querySelectorAll('.water-indent');
+                    const bugRect = bug.getBoundingClientRect();
+                    const visualRect = document.getElementById('importanceVisual').getBoundingClientRect();
+                    
+                    indents.forEach((indent, index) => {
+                        // Only move the indents that correspond to bugs (first 3)
+                        if (index < 3) {
+                            const bug = document.querySelectorAll('.bug')[index];
+                            const bugLeft = bug.getBoundingClientRect().left - visualRect.left;
+                            indent.style.left = (bugLeft - 20) + 'px';
+                        }
+                    });
+                    
+                    requestAnimationFrame(move);
+                }
+                
+                move();
+            });
+        }
+    </script>
+</body>
+</html>
