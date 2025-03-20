@@ -328,7 +328,9 @@
                 src: ['mp3/nokia.mp3'],
                 loop: true,
                 volume: 0.7,
-                autoplay: false
+                autoplay: false,
+                preload: true,
+                html5: true // This can help with mobile playback
             });
             
             // Set up audio controls
@@ -377,7 +379,11 @@
             
             // Start playing background music when the user enters the lab
             if (backgroundMusic) {
-                backgroundMusic.play();
+                // Force start the music with a slight delay to ensure UI transition completes first
+                setTimeout(() => {
+                    backgroundMusic.play();
+                    document.getElementById('mute-button').textContent = '🔊';
+                }, 100);
             }
         });
     
@@ -403,7 +409,8 @@
     
         continueButton.addEventListener('click', () => {
             if (currentSlideURL) {
-                window.location.href = currentSlideURL;
+                // Open the slide in a new tab instead of navigating away from the lab
+                window.open(currentSlideURL, '_blank');
             }
             dialogContainer.classList.remove('active');
         });
@@ -1405,8 +1412,7 @@
             // Add the lab equipment group to the scene
             scene.add(labGroup);
             
-            return { labGroup, interactiveObjects: [microscopeGroup, beakerGroup, dropletGroup, tensionGroup] };
-        }
+            return { labGroup, interactiveObjects: [microscopeGroup, beakerGroup, dropletGroup, tensionGroup] };}
     // Initialize the scene
     const room = createRoom();
     const { interactiveObjects } = createLabEquipment();
