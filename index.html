@@ -6,7 +6,38 @@
     <title>Leprechaun's Lucky Redirect</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.6.1/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
     <style>
+        .audio-controls {
+    position: absolute;
+    bottom: 60px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 5px 10px;
+    border-radius: 30px;
+    z-index: 10;
+}
+
+.audio-controls button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin: 0 5px;
+    padding: 5px;
+}
+
+.audio-controls button:hover {
+    color: #4CAF50;
+}
+
+.volume-slider {
+    width: 80px;
+    margin: 0 10px;
+}
         * {
             margin: 0;
             padding: 0;
@@ -212,8 +243,89 @@
     <div class="interaction-guide">
         Hold and drag mouse to look around • WASD to move • Click on characters and objects to interact
     </div>
+    <div class="audio-controls">
+        <button id="mute-button">🔊</button>
+        <input type="range" min="0" max="100" value="70" class="volume-slider" id="volume-slider">
+    </div>
 
     <script>
+        // Audio setup with Howler.js
+let backgroundMusic;
+
+// Initialize audio
+function initAudio() {
+    // Using Irish-themed background music
+    backgroundMusic = new Howl({
+        src: ['mp3/nokia.mp3'],
+        loop: true,
+        volume: 0.7,
+        autoplay: false,
+        preload: true,
+        html5: true // This can help with mobile playback
+    });
+    
+    // Set up audio controls
+    const muteButton = document.getElementById('mute-button');
+    const volumeSlider = document.getElementById('volume-slider');
+    
+    muteButton.addEventListener('click', function() {
+        if (backgroundMusic.playing()) {
+            backgroundMusic.pause();
+            muteButton.textContent = '🔇';
+        } else {
+            backgroundMusic.play();
+            muteButton.textContent = '🔊';
+        }
+    });
+    
+    volumeSlider.addEventListener('input', function() {
+        const volumeValue = volumeSlider.value / 100;
+        backgroundMusic.volume(volumeValue);
+        
+        // Update the mute button icon based on volume
+        if (volumeValue === 0) {
+            muteButton.textContent = '🔇';
+        } else {
+            muteButton.textContent = '🔊';
+        }
+    });
+}
+
+// In your window.addEventListener('load') function, add this:
+window.addEventListener('load', () => {
+    // Initialize audio
+    initAudio();
+    
+    setTimeout(() => {
+        document.querySelector('.loading').classList.add('hidden');
+        
+        // Start playing background music after loader is hidden
+        setTimeout(() => {
+            if (backgroundMusic) {
+                backgroundMusic.play();
+                document.getElementById('mute-button').textContent = '🔊';
+            }
+        }, 500);
+    }, 2000);
+});
+
+// Handle visibility change to pause/resume music when tab changes
+document.addEventListener('visibilitychange', () => {
+    if (backgroundMusic) {
+        if (document.hidden) {
+            // Remember if music was playing
+            backgroundMusic.wasPlaying = backgroundMusic.playing();
+            if (backgroundMusic.wasPlaying) {
+                backgroundMusic.pause();
+            }
+        } else {
+            // Resume music if it was playing before
+            if (backgroundMusic.wasPlaying) {
+                backgroundMusic.play();
+            }
+        }
+    }
+});
         // Wait for everything to load
         window.addEventListener('load', () => {
             setTimeout(() => {
